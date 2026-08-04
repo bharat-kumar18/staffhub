@@ -614,3 +614,122 @@ exports.resetPassword = async (req, res) => {
     }
 
 };
+
+// CHANGE PASSWORD
+
+exports.changePassword = async (req, res) => {
+
+    try {
+
+        const { oldPassword, newPassword } = req.body;
+
+        // 1. Check input fields
+        if (!oldPassword || !newPassword) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Old password and new password are required"
+            });
+
+        }
+
+
+        // 2. Get user ID from JWT
+        const userId = req.user.id;
+
+
+        // 3. Find user in database
+        const result = await pool.query(
+            "SELECT id, password FROM users WHERE id = $1",
+            [userId]
+        );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+
+        }
+
+
+        const user = result.rows[0];
+
+
+        // 4. Compare old password with database password
+        const isPasswordCorrect = await bcrypt.compare(
+            oldPassword,
+            user.password
+        );
+
+
+        if (!isPasswordCorrect) {
+
+            return res.status(401).json({
+                success: false,
+                message: "Old password is incorrect"
+            });
+
+        }
+
+
+        // 5. Don't allow same old and new password
+        const isSamePassword = await bcrypt.compare(
+            newPassword,
+            user.password
+        );
+
+
+        if (isSamePassword) {
+
+            return res.status(400).json({
+                success: false,
+                message: "New password must be different from old password"
+            });
+
+        }
+
+
+        // 6. Hash new password
+        const hashedPassword = await bcrypt.hash(
+            newPassword,
+            10
+        );
+
+
+        // 7. Update password in database
+        await pool.query(
+            `UPDATE users
+             SET password = $1
+             WHERE id = $2`,
+            [
+                hashedPassword,
+                userId
+            ]
+        );
+
+
+        // 8. Success response
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Change Password Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+
+    }
+
+};
