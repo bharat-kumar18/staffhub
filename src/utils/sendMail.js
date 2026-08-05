@@ -1,33 +1,649 @@
 const nodemailer = require("nodemailer");
+const path = require("path");
+
+
+// =====================================================
+// EMAIL TRANSPORTER
+// =====================================================
 
 const transporter = nodemailer.createTransport({
+
     service: "gmail",
 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
     }
+
 });
 
 
+// =====================================================
+// SEND OTP EMAIL
+// =====================================================
+
 const sendOTPEmail = async (email, otp) => {
 
-    const mailOptions = {
+    try {
 
-        from: process.env.EMAIL_USER,
+        // -------------------------------------------------
+        // Convert OTP into individual digits
+        // -------------------------------------------------
 
-        to: email,
+        const otpDigits = otp.toString().split("");
 
-        subject: "Password Reset OTP",
 
-        text: `Your password reset OTP is ${otp}. This OTP will expire in 10 minutes.`
+        // -------------------------------------------------
+        // Create OTP boxes
+        // -------------------------------------------------
 
-    };
+        const otpBoxes = otpDigits.map((digit) => {
 
-    await transporter.sendMail(mailOptions);
+            return `
+                <td
+                    align="center"
+                    style="
+                        width: 42px;
+                        height: 48px;
+                        background-color: #eff6ff;
+                        border: 1px solid #bfdbfe;
+                        border-radius: 8px;
+                        color: #2563eb;
+                        font-size: 24px;
+                        font-weight: bold;
+                        font-family: Arial, Helvetica, sans-serif;
+                    "
+                >
+                    ${digit}
+                </td>
+
+                <td style="width: 7px;"></td>
+            `;
+
+        }).join("");
+
+
+        // =================================================
+        // MAIL OPTIONS
+        // =================================================
+
+        const mailOptions = {
+
+            from: `"StaffHUB" <${process.env.EMAIL_USER}>`,
+
+            to: email,
+
+            subject: "StaffHUB | Password Reset Verification Code",
+
+
+            // =================================================
+            // HTML TEMPLATE
+            // =================================================
+
+            html: `
+
+            <!DOCTYPE html>
+
+            <html>
+
+            <head>
+
+                <meta charset="UTF-8">
+
+                <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1.0"
+                >
+
+                <title>
+                    StaffHUB Password Reset
+                </title>
+
+            </head>
+
+
+            <body
+                style="
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f1f5f9;
+                    font-family: Arial, Helvetica, sans-serif;
+                "
+            >
+
+
+                <!-- ========================================= -->
+                <!-- PAGE BACKGROUND -->
+                <!-- ========================================= -->
+
+                <table
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                        background-color: #f1f5f9;
+                        padding: 45px 20px;
+                    "
+                >
+
+                    <tr>
+
+                        <td align="center">
+
+
+                            <!-- ================================= -->
+                            <!-- MAIN EMAIL CONTAINER -->
+                            <!-- ================================= -->
+
+                            <table
+                                width="600"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="
+                                    width: 100%;
+                                    max-width: 600px;
+                                    background-color: #ffffff;
+                                    border-radius: 14px;
+                                    overflow: hidden;
+                                    box-shadow:
+                                        0 4px 20px
+                                        rgba(15, 23, 42, 0.08);
+                                "
+                            >
+
+
+                                <!-- ================================= -->
+                                <!-- HEADER -->
+                                <!-- ================================= -->
+
+                                <tr>
+
+                                    <td
+                                        align="center"
+                                        style="
+                                            background-color: #eba225;
+                                            border-top: 5px solid #212224a9;
+                                            padding: 32px 25px 30px;
+                                        "
+                                    >
+
+
+                                        <!-- LOGO -->
+
+                                        <img
+                                            src="cid:staffhub-logo"
+                                            alt="StaffHUB Logo"
+                                            width="95"
+                                            style="
+                                                display: block;
+                                                width: 95px;
+                                                max-width: 95px;
+                                                height: auto;
+                                                margin: 0 auto 10px;
+                                            "
+                                        >
+
+
+                                        <!-- BRAND NAME -->
+
+                                        <div
+                                            style="
+                                                color: #ffffff;
+                                                font-size: 28px;
+                                                line-height: 34px;
+                                                font-weight: 700;
+                                                letter-spacing: -0.5px;
+                                            "
+                                        >
+                                            StaffHUB
+                                        </div>
+
+
+                                        <!-- TAGLINE -->
+
+                                        <div
+                                            style="
+                                                margin-top: 7px;
+                                                color: #dbeafe;
+                                                font-size: 12px;
+                                                line-height: 18px;
+                                                font-weight: 600;
+                                                letter-spacing: 1.5px;
+                                            "
+                                        >
+                                            EMPLOYEE MANAGEMENT SYSTEM
+                                        </div>
+
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- ================================= -->
+                                <!-- HEADER ACCENT -->
+                                <!-- ================================= -->
+
+                                <tr>
+
+                                    <td
+                                        style="
+                                            height: 4px;
+                                            background-color: #dbeafe;
+                                            font-size: 0;
+                                            line-height: 0;
+                                        "
+                                    >
+                                        &nbsp;
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- ================================= -->
+                                <!-- BODY -->
+                                <!-- ================================= -->
+
+                                <tr>
+
+                                    <td
+                                        style="
+                                            padding: 42px 48px 45px;
+                                        "
+                                    >
+
+
+                                        <!-- HEADING -->
+
+                                        <h2
+                                            style="
+                                                margin: 0 0 18px;
+                                                color: #111827;
+                                                font-size: 26px;
+                                                line-height: 34px;
+                                                font-weight: 700;
+                                            "
+                                        >
+                                            Password Reset Request
+                                        </h2>
+
+
+                                        <!-- GREETING -->
+
+                                        <p
+                                            style="
+                                                margin: 0 0 16px;
+                                                color: #475569;
+                                                font-size: 16px;
+                                                line-height: 25px;
+                                            "
+                                        >
+                                            Hello,
+                                        </p>
+
+
+                                        <!-- DESCRIPTION -->
+
+                                        <p
+                                            style="
+                                                margin: 0 0 28px;
+                                                color: #475569;
+                                                font-size: 16px;
+                                                line-height: 26px;
+                                            "
+                                        >
+                                            We received a request to reset
+                                            the password for your
+                                            <strong style="color: #eba225;">
+                                                StaffHUB
+                                            </strong>
+                                            account.
+                                            Use the verification code below
+                                            to continue.
+                                        </p>
+
+
+
+                                        <!-- ================================= -->
+                                        <!-- OTP SECTION -->
+                                        <!-- ================================= -->
+
+                                        <table
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="
+                                                background-color: #f8fafc;
+                                                border: 1px solid #e2e8f0;
+                                                border-radius: 12px;
+                                                padding: 25px 15px;
+                                            "
+                                        >
+
+                                            <tr>
+
+                                                <td align="center">
+
+
+                                                    <!-- OTP LABEL -->
+
+                                                    <div
+                                                        style="
+                                                            color: #313335;
+                                                            font-size: 12px;
+                                                            line-height: 18px;
+                                                            font-weight: 700;
+                                                            letter-spacing: 2px;
+                                                            margin-bottom: 18px;
+                                                        "
+                                                    >
+                                                        YOUR VERIFICATION CODE
+                                                    </div>
+
+
+                                                    <!-- OTP DIGITS -->
+
+                                                    <table
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                        border="0"
+                                                        align="center"
+                                                    >
+
+                                                        <tr>
+
+                                                            ${otpBoxes}
+
+                                                        </tr>
+
+                                                    </table>
+
+
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+
+
+
+                                        <!-- ================================= -->
+                                        <!-- EXPIRY -->
+                                        <!-- ================================= -->
+
+                                        <table
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="
+                                                margin-top: 20px;
+                                            "
+                                        >
+
+                                            <tr>
+
+                                                <td
+                                                    align="center"
+                                                    style="
+                                                        color: #3e4247;
+                                                        font-size: 14px;
+                                                        line-height: 22px;
+                                                    "
+                                                >
+
+                                                    ⏱
+
+                                                    This verification code
+                                                    expires in
+
+                                                    <strong
+                                                        style="
+                                                            color: #475569;
+                                                        "
+                                                    >
+                                                        10 minutes
+                                                    </strong>.
+
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+
+
+
+                                        <!-- ================================= -->
+                                        <!-- SECURITY NOTICE -->
+                                        <!-- ================================= -->
+
+                                        <table
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="
+                                                margin-top: 28px;
+                                                background-color: #fffbeb;
+                                                border: 1px solid #fde68a;
+                                                border-radius: 10px;
+                                            "
+                                        >
+
+                                            <tr>
+
+                                                <td
+                                                    style="
+                                                        padding: 16px 18px;
+                                                    "
+                                                >
+
+                                                    <p
+                                                        style="
+                                                            margin: 0;
+                                                            color: #92400e;
+                                                            font-size: 13px;
+                                                            line-height: 20px;
+                                                        "
+                                                    >
+
+                                                        <strong>
+                                                            Security Notice:
+                                                        </strong>
+
+                                                        Never share this
+                                                        verification code
+                                                        with anyone.
+
+                                                        StaffHUB will never
+                                                        ask you to share
+                                                        your OTP.
+
+                                                    </p>
+
+                                                </td>
+
+                                            </tr>
+
+                                        </table>
+
+
+
+                                        <!-- ================================= -->
+                                        <!-- FALLBACK MESSAGE -->
+                                        <!-- ================================= -->
+
+                                        <p
+                                            style="
+                                                margin: 28px 0 0;
+                                                color: #64748b;
+                                                font-size: 14px;
+                                                line-height: 23px;
+                                            "
+                                        >
+
+                                            If you didn't request a password
+                                            reset, please ignore this email
+                                            or contact our support team if
+                                            you believe your account may be
+                                            at risk.
+
+                                        </p>
+
+
+                                    </td>
+
+                                </tr>
+
+
+                                <!-- ================================= -->
+                                <!-- FOOTER -->
+                                <!-- ================================= -->
+
+                                <tr>
+
+                                    <td
+                                        align="center"
+                                        style="
+                                            background-color: #f8fafc;
+                                            border-top: 1px solid #e2e8f0;
+                                            padding: 25px 20px;
+                                        "
+                                    >
+
+
+                                        <!-- SUPPORT -->
+
+                                        <p
+                                            style="
+                                                margin: 0 0 8px;
+                                                color: #475569;
+                                                font-size: 13px;
+                                                line-height: 20px;
+                                            "
+                                        >
+
+                                            Need help?
+                                            Contact StaffHUB Support.
+
+                                        </p>
+
+
+                                        <!-- COPYRIGHT -->
+
+                                        <p
+                                            style="
+                                                margin: 0;
+                                                color: #94a3b8;
+                                                font-size: 12px;
+                                                line-height: 18px;
+                                            "
+                                        >
+
+                                            © ${new Date().getFullYear()}
+                                            StaffHUB.
+                                            All rights reserved.
+
+                                        </p>
+
+
+                                        <!-- AUTOMATED EMAIL -->
+
+                                        <p
+                                            style="
+                                                margin: 6px 0 0;
+                                                color: #cbd5e1;
+                                                font-size: 11px;
+                                                line-height: 17px;
+                                            "
+                                        >
+
+                                            This is an automated email.
+                                            Please do not reply.
+
+                                        </p>
+
+
+                                    </td>
+
+                                </tr>
+
+
+                            </table>
+
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+
+            </body>
+
+            </html>
+
+            `,
+
+
+            // =================================================
+            // STAFFHUB LOGO
+            // =================================================
+
+            attachments: [
+
+                {
+
+                    filename: "staffhub.png",
+
+                    path: path.join(
+                        __dirname,
+                        "../images/staffhub.png"
+                    ),
+
+                    cid: "staffhub-logo",
+
+                    contentType: "image/png"
+
+                }
+
+            ]
+
+        };
+
+
+        // =================================================
+        // SEND EMAIL
+        // =================================================
+
+        await transporter.sendMail(mailOptions);
+
+
+        console.log(
+            "OTP email sent successfully to:",
+            email
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Send OTP Email Error:",
+            error
+        );
+
+        throw error;
+
+    }
+
 };
 
 
-module.exports = sendOTPEmail;
+// =====================================================
+// EXPORT
+// =====================================================
 
- 
+module.exports = sendOTPEmail;

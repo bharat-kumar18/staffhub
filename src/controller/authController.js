@@ -215,8 +215,7 @@ exports.login = async (req, res) => {
 };
 
 
-// FORGOT PASSWORD
-// =====================================================
+// FORGOT PASSWORD-------------------------------------
 
 exports.forgotPassword = async (req, res) => {
 
@@ -329,8 +328,7 @@ exports.forgotPassword = async (req, res) => {
 
 };
 
-// VERIFY OTP
-// =====================================================
+// VERIFY OTP--------------------------------------------
 
 exports.verifyOTP = async (req, res) => {
 
@@ -483,8 +481,7 @@ exports.verifyOTP = async (req, res) => {
 };
 
 
-// RESET PASSWORD
-// =====================================================
+// RESET PASSWORD-----------------------------------------
 
 exports.resetPassword = async (req, res) => {
 
@@ -497,7 +494,6 @@ exports.resetPassword = async (req, res) => {
 
 
         // 1. Check fields
-
         if (!resetToken || !newPassword) {
 
             return res.status(400).json({
@@ -509,7 +505,6 @@ exports.resetPassword = async (req, res) => {
 
 
         // 2. Verify reset token
-
         const decoded = jwt.verify(
             resetToken,
             process.env.JWT_SECRET
@@ -517,7 +512,6 @@ exports.resetPassword = async (req, res) => {
 
 
         // 3. Check token purpose
-
         if (decoded.purpose !== "password_reset") {
 
             return res.status(401).json({
@@ -528,16 +522,51 @@ exports.resetPassword = async (req, res) => {
         }
 
 
-        // 4. Hash new password
+        // 4. Get user's current password from database
+        const result = await pool.query(
+            "SELECT id, password FROM users WHERE id = $1",
+            [decoded.userId]
+        );
 
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+
+        }
+
+
+        const user = result.rows[0];
+
+
+        // 5. Check whether new password is same as old password
+        const isSamePassword = await bcrypt.compare(
+            newPassword,
+            user.password
+        );
+
+
+        if (isSamePassword) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Your password is same as old password. Please enter a new password"
+            });
+
+        }
+
+
+        // 6. Hash new password
         const hashedPassword = await bcrypt.hash(
             newPassword,
             10
         );
 
 
-        // 5. Update password
-
+        // 7. Update password
         await pool.query(
             `UPDATE users
              SET password = $1
@@ -549,8 +578,7 @@ exports.resetPassword = async (req, res) => {
         );
 
 
-        // 6. Delete OTP record
-
+        // 8. Delete OTP record
         await pool.query(
             `DELETE FROM password_reset_otps
              WHERE user_id = $1`,
@@ -558,9 +586,8 @@ exports.resetPassword = async (req, res) => {
         );
 
 
-        // 7. Response
-
-        res.status(200).json({
+        // 9. Response
+        return res.status(200).json({
 
             success: true,
 
@@ -577,6 +604,7 @@ exports.resetPassword = async (req, res) => {
         );
 
 
+        // Token expired
         if (error.name === "TokenExpiredError") {
 
             return res.status(401).json({
@@ -590,6 +618,7 @@ exports.resetPassword = async (req, res) => {
         }
 
 
+        // Invalid token
         if (error.name === "JsonWebTokenError") {
 
             return res.status(401).json({
@@ -603,7 +632,7 @@ exports.resetPassword = async (req, res) => {
         }
 
 
-        res.status(500).json({
+        return res.status(500).json({
 
             success: false,
 
@@ -615,13 +644,14 @@ exports.resetPassword = async (req, res) => {
 
 };
 
-// CHANGE PASSWORD
+// CHANGE PASSWORD-----------------------------------------
 
 exports.changePassword = async (req, res) => {
 
     try {
 
         const { oldPassword, newPassword } = req.body;
+
 
         // 1. Check input fields
         if (!oldPassword || !newPassword) {
@@ -634,11 +664,22 @@ exports.changePassword = async (req, res) => {
         }
 
 
-        // 2. Get user ID from JWT
+        // 2. Check whether old and new password are same
+        if (oldPassword === newPassword) {
+
+            return res.status(400).json({
+                success: false,
+                message: "New password must be different from old password"
+            });
+
+        }
+
+
+        // 3. Get user ID from JWT
         const userId = req.user.id;
 
 
-        // 3. Find user in database
+        // 4. Find user in database
         const result = await pool.query(
             "SELECT id, password FROM users WHERE id = $1",
             [userId]
@@ -658,7 +699,7 @@ exports.changePassword = async (req, res) => {
         const user = result.rows[0];
 
 
-        // 4. Compare old password with database password
+        // 5. Compare old password with hashed password
         const isPasswordCorrect = await bcrypt.compare(
             oldPassword,
             user.password
@@ -675,23 +716,6 @@ exports.changePassword = async (req, res) => {
         }
 
 
-        // 5. Don't allow same old and new password
-        const isSamePassword = await bcrypt.compare(
-            newPassword,
-            user.password
-        );
-
-
-        if (isSamePassword) {
-
-            return res.status(400).json({
-                success: false,
-                message: "New password must be different from old password"
-            });
-
-        }
-
-
         // 6. Hash new password
         const hashedPassword = await bcrypt.hash(
             newPassword,
@@ -699,7 +723,7 @@ exports.changePassword = async (req, res) => {
         );
 
 
-        // 7. Update password in database
+        // 7. Update password
         await pool.query(
             `UPDATE users
              SET password = $1

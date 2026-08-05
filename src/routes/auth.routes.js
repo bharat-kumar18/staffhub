@@ -7,14 +7,18 @@ const { signup, login, forgotPassword, verifyOTP, resetPassword, changePassword 
 
 // Signup
 router.post("/signup", signup);
+
+
 // Login
 router.post("/login", login);
+
+
 // Forgot password
-router.post("/forgot-password", forgotPassword);
+router.post("/forgotPassword", forgotPassword);
 
 
 // Verify OTP
-router.post("/verify-otp", verifyOTP);
+router.post("/verifyOtp", verifyOTP);
 
 
 // Reset password

@@ -9,14 +9,7 @@ const authRoutes = require("./src/routes/auth.routes");
 
 app.use(express.json());
 app.use(cors())
-app.use("/api/auth", authRoutes);
 
-app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "EMS Backend is running"
-    });
-});
 
 const port = 3000
 
