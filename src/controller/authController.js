@@ -2,7 +2,10 @@ const express = require("express");
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const sendOTPEmail = require("../utils/sendMail");
+const {
+    sendWelcomeEmail,
+    sendOTPEmail,
+} = require("../utils/sendMail");
 
 
 
@@ -17,7 +20,9 @@ exports.signup = async (req, res) => {
         } = req.body;
 
 
+        // -------------------------------------------------
         // 1. Check required fields
+        // -------------------------------------------------
 
         if (!name || !email || !password) {
 
@@ -29,17 +34,21 @@ exports.signup = async (req, res) => {
         }
 
 
+        // -------------------------------------------------
         // 2. Check if user already exists
+        // -------------------------------------------------
 
         const existingUser = await pool.query(
-            "SELECT id FROM users WHERE email = $1",
+            `SELECT id
+             FROM users
+             WHERE email = $1`,
             [email]
         );
 
 
         if (existingUser.rows.length > 0) {
 
-            return res.status(404).json({
+            return res.status(409).json({
                 success: false,
                 message: "User already exists"
             });
@@ -47,29 +56,92 @@ exports.signup = async (req, res) => {
         }
 
 
+        // -------------------------------------------------
         // 3. Hash password
+        // -------------------------------------------------
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(
+            password,
+            10
+        );
 
 
-        // 4. Insert user into database
+        // -------------------------------------------------
+        // 4. Get ADMIN role
+        // -------------------------------------------------
+
+        const roleResult = await pool.query(
+            `SELECT id, role_name
+             FROM roles
+             WHERE role_name = $1`,
+            ["admin"]
+        );
+
+
+        // -------------------------------------------------
+        // 5. Check ADMIN role exists
+        // -------------------------------------------------
+
+        if (roleResult.rows.length === 0) {
+
+            return res.status(500).json({
+                success: false,
+                message: "Admin role not found"
+            });
+
+        }
+
+
+        // -------------------------------------------------
+        // 6. Get ADMIN role ID
+        // -------------------------------------------------
+
+        const roleId = roleResult.rows[0].id;
+
+
+        // -------------------------------------------------
+        // 7. Insert user
+        // -------------------------------------------------
 
         const result = await pool.query(
             `INSERT INTO users
-            (name, email, password)
-            VALUES ($1, $2, $3)
-            RETURNING id, name, email, role, created_at`,
+            (
+                name,
+                email,
+                password,
+                role_id
+            )
+            VALUES ($1, $2, $3, $4)
+            RETURNING
+                id,
+                name,
+                email,
+                role_id,
+                created_at`,
             [
                 name,
                 email,
-                hashedPassword
+                hashedPassword,
+                roleId
             ]
         );
 
 
-        // 5. Send response
+        // -------------------------------------------------
+        // 8. Send welcome email
+        // -------------------------------------------------
 
-        res.status(201).json({
+        await sendWelcomeEmail(
+            name,
+            email
+        );
+
+
+        // -------------------------------------------------
+        // 9. Send response
+        // -------------------------------------------------
+
+        return res.status(201).json({
 
             success: true,
 
@@ -82,11 +154,17 @@ exports.signup = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Signup Error:", error);
+        console.error(
+            "Signup Error:",
+            error
+        );
 
-        res.status(500).json({
+        return res.status(500).json({
+
             success: false,
+
             message: "Internal server error"
+
         });
 
     }
@@ -101,14 +179,9 @@ exports.login = async (req, res) => {
 
     try {
 
-        const {
-            email,
-            password
-        } = req.body;
-
+        const { email, password } = req.body;
 
         // 1. Check fields
-
         if (!email || !password) {
 
             return res.status(400).json({
@@ -119,16 +192,24 @@ exports.login = async (req, res) => {
         }
 
 
-        // 2. Find user by email
-
+        // 2. Get user + role
         const result = await pool.query(
-            "SELECT * FROM users WHERE email = $1",
+            `SELECT
+                users.id,
+                users.name,
+                users.email,
+                users.password,
+                users.role_id,
+                roles.role_name
+             FROM users
+             JOIN roles
+                ON users.role_id = roles.id
+             WHERE users.email = $1`,
             [email]
         );
 
 
         // 3. User not found
-
         if (result.rows.length === 0) {
 
             return res.status(401).json({
@@ -142,15 +223,12 @@ exports.login = async (req, res) => {
         const user = result.rows[0];
 
 
-        // 4. Compare password
-
+        // 4. Check password
         const isPasswordCorrect = await bcrypt.compare(
             password,
             user.password
         );
 
-
-        // 5. Wrong password
 
         if (!isPasswordCorrect) {
 
@@ -162,14 +240,14 @@ exports.login = async (req, res) => {
         }
 
 
-        // 6. Generate JWT token
-
+        // 5. Create JWT
         const token = jwt.sign(
 
             {
                 id: user.id,
                 email: user.email,
-                role: user.role
+                role_id: user.role_id,
+                role: user.role_name
             },
 
             process.env.JWT_SECRET,
@@ -181,9 +259,8 @@ exports.login = async (req, res) => {
         );
 
 
-        // 7. Send response
-
-        res.status(200).json({
+        // 6. Response
+        return res.status(200).json({
 
             success: true,
 
@@ -195,7 +272,8 @@ exports.login = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role_id: user.role_id,
+                role: user.role_name
             }
 
         });
@@ -205,7 +283,7 @@ exports.login = async (req, res) => {
 
         console.error("Login Error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: "Internal server error"
         });

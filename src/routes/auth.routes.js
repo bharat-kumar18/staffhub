@@ -2,7 +2,8 @@ const express = require('express');
 
 const router = express.Router();
 
-const authMiddleware = require("../middleware/authMiddleware");
+const { authMiddlewaree } = require("../middleware/authMiddleware");
+const  { SuperAdmin } = require("../middleware/roleMiddleware");
 const { signup, login, forgotPassword, verifyOTP, resetPassword, changePassword } = require("../controller/authController");
 
 // Signup
@@ -25,7 +26,9 @@ router.post("/verifyOtp", verifyOTP);
 router.post("/reset-password", resetPassword);
 
 // Change Password
-router.post("/change-password",authMiddleware,changePassword);
+router.post("/change-password",authMiddlewaree, changePassword);
+
+
 
 
 module.exports = router;
