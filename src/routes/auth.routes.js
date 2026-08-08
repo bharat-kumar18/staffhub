@@ -35,6 +35,7 @@ router.get(
     "/admins",
     authMiddleware,
     SuperAdmin,
+    getAdmins,
     (req, res) => {
 
         res.status(200).json({
@@ -56,7 +57,7 @@ router.post(
 // Update User API
 
 router.put(
-    "/update-user/:id",
+    "/update-user",
     authMiddleware,
     SuperAdmin,
     updateUser

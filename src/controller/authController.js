@@ -836,28 +836,322 @@ exports.changePassword = async (req, res) => {
 
 };
 
-// Get User API
+// Get User API ONLY by SUPERADMIN
 exports.getAdmins = async (req, res) => {
 
     try {
 
-        const result = await pool.query(
-            `
+        // =====================================================
+        // 1. Get pagination, sorting and filters from BODY
+        // =====================================================
+
+        let {
+            page = 1,
+            limit = 10,
+            sortedBy = "created_at",
+            sortOrder = "DESC",
+            searchByKeyword = "",
+            isActive
+        } = req.body;
+
+
+        // =====================================================
+        // 2. Convert pagination values to numbers
+        // =====================================================
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+
+        // =====================================================
+        // 3. Validate page
+        // =====================================================
+
+        if (isNaN(page) || page < 1) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Page must be a positive number"
+            });
+
+        }
+
+
+        // =====================================================
+        // 4. Validate limit
+        // =====================================================
+
+        if (isNaN(limit) || limit < 1) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Limit must be a positive number"
+            });
+
+        }
+
+
+        // Maximum 100 users per page
+
+        if (limit > 100) {
+            limit = 100;
+        }
+
+
+        // =====================================================
+        // 5. Calculate OFFSET
+        // =====================================================
+
+        const offset = (page - 1) * limit;
+
+
+        // =====================================================
+        // 6. Allowed sorting columns
+        // =====================================================
+
+        const allowedSortColumns = {
+
+            id: "users.id",
+
+            name: "users.name",
+
+            email: "users.email",
+
+            created_at: "users.created_at",
+
+            role_id: "users.role_id"
+
+        };
+
+
+        // =====================================================
+        // 7. Validate sortedBy
+        // =====================================================
+
+        if (!allowedSortColumns[sortedBy]) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid sortedBy. Allowed values: id, name, email, created_at, role_id"
+
+            });
+
+        }
+
+
+        const sortColumn = allowedSortColumns[sortedBy];
+
+
+        // =====================================================
+        // 8. Validate sortOrder
+        // =====================================================
+
+        sortOrder = sortOrder.toUpperCase();
+
+
+        if (!["ASC", "DESC"].includes(sortOrder)) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid sortOrder. Use ASC or DESC"
+
+            });
+
+        }
+
+
+        // =====================================================
+        // 9. Create WHERE conditions
+        // =====================================================
+
+        const conditions = [
+
+            "users.role_id = 2"
+
+        ];
+
+
+        const queryParams = [];
+
+
+
+        // =====================================================
+        // 10. Search by keyword
+        // =====================================================
+
+        if (
+            searchByKeyword &&
+            searchByKeyword.trim() !== ""
+        ) {
+
+            queryParams.push(
+                `%${searchByKeyword.trim()}%`
+            );
+
+            conditions.push(
+                `(
+                    users.name ILIKE $${queryParams.length}
+                    OR users.email ILIKE $${queryParams.length}
+                )`
+            );
+
+        }
+
+
+        // =====================================================
+        // 11. Active / Inactive filter
+        //
+        // By default:
+        // isActive = undefined
+        // → show BOTH active and inactive users
+        //
+        // If true:
+        // → show only active users
+        //
+        // If false:
+        // → show only inactive users
+        // =====================================================
+
+        if (isActive !== undefined && isActive !== "") {
+
+            // Convert string "true"/"false" into boolean
+
+            if (
+                isActive !== true &&
+                isActive !== false &&
+                isActive !== "true" &&
+                isActive !== "false"
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "isActive must be true or false"
+
+                });
+
+            }
+
+
+            const activeValue =
+                isActive === true ||
+                isActive === "true";
+
+
+            queryParams.push(activeValue);
+
+
+            conditions.push(
+                `users.is_active = $${queryParams.length}`
+            );
+
+        }
+
+
+        // =====================================================
+        // 12. Create WHERE clause
+        // =====================================================
+
+        const whereClause =
+            conditions.join(" AND ");
+
+
+
+        // =====================================================
+        // 13. Get TOTAL users
+        // =====================================================
+
+        const countQuery = `
+            SELECT COUNT(*) AS total
+            FROM users
+            WHERE ${whereClause}
+        `;
+
+
+        const countResult = await pool.query(
+            countQuery,
+            queryParams
+        );
+
+
+        const totalUsers = parseInt(
+            countResult.rows[0].total
+        );
+
+
+
+        // =====================================================
+        // 14. Pagination parameters
+        // =====================================================
+
+        queryParams.push(limit);
+
+        const limitIndex = queryParams.length;
+
+
+        queryParams.push(offset);
+
+        const offsetIndex = queryParams.length;
+
+
+
+        // =====================================================
+        // 15. Get Admin users
+        // =====================================================
+
+        const usersQuery = `
             SELECT
                 users.id,
                 users.name,
                 users.email,
                 users.role_id,
                 roles.role_name,
+                users.is_active,
                 users.created_at
+
             FROM users
+
             JOIN roles
                 ON users.role_id = roles.id
-            WHERE users.role_id = 2
-            ORDER BY users.created_at DESC
-            `
+
+            WHERE ${whereClause}
+
+            ORDER BY ${sortColumn} ${sortOrder}
+
+            LIMIT $${limitIndex}
+
+            OFFSET $${offsetIndex}
+        `;
+
+
+        const result = await pool.query(
+            usersQuery,
+            queryParams
         );
 
+
+
+        // =====================================================
+        // 16. Calculate total pages
+        // =====================================================
+
+        const totalPages = Math.ceil(
+            totalUsers / limit
+        );
+
+
+
+        // =====================================================
+        // 17. Response
+        // =====================================================
 
         return res.status(200).json({
 
@@ -865,7 +1159,53 @@ exports.getAdmins = async (req, res) => {
 
             message: "Admin users fetched successfully",
 
-            count: result.rows.length,
+
+            pagination: {
+
+                currentPage: page,
+
+                limit: limit,
+
+                totalUsers: totalUsers,
+
+                totalPages: totalPages,
+
+                hasNextPage:
+                    page < totalPages,
+
+                hasPreviousPage:
+                    page > 1
+
+            },
+
+
+            sorting: {
+
+                sortedBy: sortedBy,
+
+                sortOrder: sortOrder
+
+            },
+
+
+            filters: {
+
+                searchByKeyword:
+                    searchByKeyword,
+
+                isActive:
+                    isActive === undefined ||
+                    isActive === ""
+                        ? "all"
+                        : (
+                            isActive === true ||
+                            isActive === "true"
+                                ? true
+                                : false
+                        )
+
+            },
+
 
             users: result.rows
 
@@ -874,7 +1214,11 @@ exports.getAdmins = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Get Admins Error:", error);
+        console.error(
+            "Get Admins Error:",
+            error
+        );
+
 
         return res.status(500).json({
 
@@ -1033,38 +1377,32 @@ exports.updateUser = async (req, res) => {
     try {
 
         // -----------------------------------------
-        // 1. Get Admin ID from URL
-        // -----------------------------------------
-
-        const { id } = req.params;
-
-
-        // -----------------------------------------
-        // 2. Get data from request body
+        // 1. Get data from request body
         // -----------------------------------------
 
         const {
+            id,
             name,
             email
         } = req.body;
 
 
         // -----------------------------------------
-        // 3. Validate ID
+        // 2. Validate ID
         // -----------------------------------------
 
         if (!id) {
 
             return res.status(400).json({
                 success: false,
-                message: "User ID is required"
+                message: "Admin ID is required"
             });
 
         }
 
 
         // -----------------------------------------
-        // 4. Validate name and email
+        // 3. Validate name and email
         // -----------------------------------------
 
         if (!name || !email) {
@@ -1078,7 +1416,7 @@ exports.updateUser = async (req, res) => {
 
 
         // -----------------------------------------
-        // 5. Check whether target user is an Admin
+        // 4. Check whether target user is an Admin
         // -----------------------------------------
 
         const userResult = await pool.query(
@@ -1089,13 +1427,14 @@ exports.updateUser = async (req, res) => {
                 role_id
              FROM users
              WHERE id = $1
-             AND role_id = 2`,
+             AND role_id = 2
+             AND is_active = TRUE`,
             [id]
         );
 
 
         // -----------------------------------------
-        // 6. Admin not found
+        // 5. Admin not found
         // -----------------------------------------
 
         if (userResult.rows.length === 0) {
@@ -1109,7 +1448,7 @@ exports.updateUser = async (req, res) => {
 
 
         // -----------------------------------------
-        // 7. Check email already exists
+        // 6. Check whether email already exists
         // -----------------------------------------
 
         const emailResult = await pool.query(
@@ -1125,7 +1464,7 @@ exports.updateUser = async (req, res) => {
 
 
         // -----------------------------------------
-        // 8. Email already exists
+        // 7. Email already exists
         // -----------------------------------------
 
         if (emailResult.rows.length > 0) {
@@ -1139,7 +1478,7 @@ exports.updateUser = async (req, res) => {
 
 
         // -----------------------------------------
-        // 9. Update Admin
+        // 8. Update Admin
         // -----------------------------------------
 
         const result = await pool.query(
@@ -1149,11 +1488,13 @@ exports.updateUser = async (req, res) => {
                 email = $2
              WHERE id = $3
              AND role_id = 2
+             AND is_active = TRUE
              RETURNING
                 id,
                 name,
                 email,
                 role_id,
+                is_active,
                 created_at`,
             [
                 name,
@@ -1164,7 +1505,7 @@ exports.updateUser = async (req, res) => {
 
 
         // -----------------------------------------
-        // 10. Send response
+        // 9. Response
         // -----------------------------------------
 
         return res.status(200).json({
