@@ -835,3 +835,491 @@ exports.changePassword = async (req, res) => {
     }
 
 };
+
+// Get User API
+exports.getAdmins = async (req, res) => {
+
+    try {
+
+        const result = await pool.query(
+            `
+            SELECT
+                users.id,
+                users.name,
+                users.email,
+                users.role_id,
+                roles.role_name,
+                users.created_at
+            FROM users
+            JOIN roles
+                ON users.role_id = roles.id
+            WHERE users.role_id = 2
+            ORDER BY users.created_at DESC
+            `
+        );
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Admin users fetched successfully",
+
+            count: result.rows.length,
+
+            users: result.rows
+
+        });
+
+
+    } catch (error) {
+
+        console.error("Get Admins Error:", error);
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Internal server error"
+
+        });
+
+    }
+
+};
+
+
+// ADD ADMIN USER
+// ONLY SUPER ADMIN CAN USE THIS API
+
+exports.addUser = async (req, res) => {
+
+    try {
+
+        const {
+            name,
+            email,
+            password
+        } = req.body;
+
+
+        // 1. Check required fields
+
+        if (!name || !email || !password) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Name, email and password are required"
+            });
+
+        }
+
+
+        // 2. Check whether email already exists
+
+        const existingUser = await pool.query(
+            `SELECT id
+             FROM users
+             WHERE email = $1`,
+            [email]
+        );
+
+
+        if (existingUser.rows.length > 0) {
+
+            return res.status(409).json({
+                success: false,
+                message: "User with this email already exists"
+            });
+
+        }
+
+
+        // 3. Find ADMIN role
+
+        const roleResult = await pool.query(
+            `SELECT id
+             FROM roles
+             WHERE role_name = $1`,
+            ["admin"]
+        );
+
+
+        if (roleResult.rows.length === 0) {
+
+            return res.status(500).json({
+                success: false,
+                message: "Admin role not found"
+            });
+
+        }
+
+
+        const adminRoleId = roleResult.rows[0].id;
+
+
+        // 4. Hash password
+
+        const hashedPassword = await bcrypt.hash(
+            password,
+            10
+        );
+
+
+        // 5. Insert Admin
+
+        const result = await pool.query(
+            `INSERT INTO users
+            (
+                name,
+                email,
+                password,
+                role_id
+            )
+            VALUES ($1, $2, $3, $4)
+            RETURNING
+                id,
+                name,
+                email,
+                role_id,
+                created_at`,
+            [
+                name,
+                email,
+                hashedPassword,
+                adminRoleId
+            ]
+        );
+
+
+        // 6. Response
+
+        return res.status(201).json({
+
+            success: true,
+
+            message: "Admin created successfully",
+
+            user: result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Add User Error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Internal server error"
+
+        });
+
+    }
+
+};
+
+
+// UPDATE ADMIN USER
+// ONLY SUPER ADMIN CAN UPDATE ADMIN
+
+exports.updateUser = async (req, res) => {
+
+    try {
+
+        // -----------------------------------------
+        // 1. Get Admin ID from URL
+        // -----------------------------------------
+
+        const { id } = req.params;
+
+
+        // -----------------------------------------
+        // 2. Get data from request body
+        // -----------------------------------------
+
+        const {
+            name,
+            email
+        } = req.body;
+
+
+        // -----------------------------------------
+        // 3. Validate ID
+        // -----------------------------------------
+
+        if (!id) {
+
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 4. Validate name and email
+        // -----------------------------------------
+
+        if (!name || !email) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Name and email are required"
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 5. Check whether target user is an Admin
+        // -----------------------------------------
+
+        const userResult = await pool.query(
+            `SELECT
+                id,
+                name,
+                email,
+                role_id
+             FROM users
+             WHERE id = $1
+             AND role_id = 2`,
+            [id]
+        );
+
+
+        // -----------------------------------------
+        // 6. Admin not found
+        // -----------------------------------------
+
+        if (userResult.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Admin not found"
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 7. Check email already exists
+        // -----------------------------------------
+
+        const emailResult = await pool.query(
+            `SELECT id
+             FROM users
+             WHERE email = $1
+             AND id != $2`,
+            [
+                email,
+                id
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 8. Email already exists
+        // -----------------------------------------
+
+        if (emailResult.rows.length > 0) {
+
+            return res.status(409).json({
+                success: false,
+                message: "This email is already registered"
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 9. Update Admin
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `UPDATE users
+             SET
+                name = $1,
+                email = $2
+             WHERE id = $3
+             AND role_id = 2
+             RETURNING
+                id,
+                name,
+                email,
+                role_id,
+                created_at`,
+            [
+                name,
+                email,
+                id
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 10. Send response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Admin updated successfully",
+
+            user: result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Update User Error:",
+            error
+        );
+
+
+        // PostgreSQL unique constraint
+        if (error.code === "23505") {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message: "This email is already registered"
+
+            });
+
+        }
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: "Internal server error"
+
+        });
+
+    }
+
+};
+
+// SOFT DELETE USER
+exports.softDeleteUser = async (req, res) => {
+
+    try {
+
+        const { id } = req.body;
+
+        // 1. Check ID
+        if (!id) {
+
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+
+        }
+
+        // 2. Check that target user exists
+        const userResult = await pool.query(
+            `SELECT
+                id,
+                name,
+                email,
+                role_id,
+                is_active
+             FROM users
+             WHERE id = $1`,
+            [id]
+        );
+
+        if (userResult.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+
+        }
+
+        const user = userResult.rows[0];
+
+        // 3. Super Admin cannot delete himself
+        if (user.role_id === 1) {
+
+            return res.status(403).json({
+                success: false,
+                message: "Super Admin cannot be deleted"
+            });
+
+        }
+
+        // 4. Only Admin can be soft deleted
+        if (user.role_id !== 2) {
+
+            return res.status(403).json({
+                success: false,
+                message: "Only Admin users can be soft deleted"
+            });
+
+        }
+
+        // 5. Already inactive
+        if (!user.is_active) {
+
+            return res.status(400).json({
+                success: false,
+                message: "User is already inactive"
+            });
+
+        }
+
+        // 6. Soft delete
+        await pool.query(
+            `UPDATE users
+             SET is_active = FALSE
+             WHERE id = $1`,
+            [id]
+        );
+
+        // 7. Response
+        return res.status(200).json({
+
+            success: true,
+
+            message: "Admin soft deleted successfully",
+
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role_id: user.role_id,
+                is_active: false
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Soft Delete User Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+
+    }
+
+};
