@@ -16,7 +16,8 @@ exports.signup = async (req, res) => {
         const {
             name,
             email,
-            password
+            password,
+            companyName
         } = req.body;
 
 
@@ -105,24 +106,27 @@ exports.signup = async (req, res) => {
 
         const result = await pool.query(
             `INSERT INTO users
-            (
-                name,
-                email,
-                password,
-                role_id
-            )
-            VALUES ($1, $2, $3, $4)
-            RETURNING
-                id,
-                name,
-                email,
-                role_id,
-                created_at`,
+    (
+        name,
+        email,
+        password,
+        role_id,
+        company_name
+    )
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING
+        id,
+        name,
+        email,
+        company_name,
+        role_id,
+        created_at`,
             [
                 name,
                 email,
                 hashedPassword,
-                roleId
+                roleId,
+                companyName
             ]
         );
 
@@ -194,17 +198,21 @@ exports.login = async (req, res) => {
 
         // 2. Get user + role
         const result = await pool.query(
-            `SELECT
-                users.id,
-                users.name,
-                users.email,
-                users.password,
-                users.role_id,
-                roles.role_name
-             FROM users
-             JOIN roles
-                ON users.role_id = roles.id
-             WHERE users.email = $1`,
+            `
+    SELECT
+        users.id,
+        users.name,
+        users.email,
+        users.password,
+        users.role_id,
+        users.company_name,
+        roles.role_name
+    FROM users
+    JOIN roles
+        ON users.role_id = roles.id
+    WHERE users.email = $1
+    AND users.is_active = TRUE
+    `,
             [email]
         );
 
@@ -242,20 +250,17 @@ exports.login = async (req, res) => {
 
         // 5. Create JWT
         const token = jwt.sign(
-
             {
                 id: user.id,
                 email: user.email,
                 role_id: user.role_id,
-                role: user.role_name
+                role: user.role_name,
+                company_name: user.company_name
             },
-
             process.env.JWT_SECRET,
-
             {
                 expiresIn: "1d"
             }
-
         );
 
 
@@ -845,7 +850,7 @@ exports.getAdmins = async (req, res) => {
         // 1. Get pagination, sorting and filters from BODY
         // =====================================================
 
-        let {
+       let {
             page = 1,
             limit = 10,
             sortedBy = "created_at",
@@ -1195,11 +1200,11 @@ exports.getAdmins = async (req, res) => {
 
                 isActive:
                     isActive === undefined ||
-                    isActive === ""
+                        isActive === ""
                         ? "all"
                         : (
                             isActive === true ||
-                            isActive === "true"
+                                isActive === "true"
                                 ? true
                                 : false
                         )
@@ -1367,7 +1372,6 @@ exports.addUser = async (req, res) => {
     }
 
 };
-
 
 // UPDATE ADMIN USER
 // ONLY SUPER ADMIN CAN UPDATE ADMIN

@@ -5,6 +5,7 @@ const router = express.Router();
 const  authMiddleware  = require("../middleware/authMiddleware");
 const  { SuperAdmin } = require("../middleware/roleMiddleware");
 const { signup, login, forgotPassword, verifyOTP, resetPassword, changePassword, getAdmins, addUser, updateUser, softDeleteUser } = require("../controller/authController");
+const {getEmployees} = require("../controller/employeeController");
 
 // Signup
 router.post("/signup", signup);
@@ -70,6 +71,13 @@ router.patch(
     SuperAdmin,
     softDeleteUser
 );
+
+// Employee 
+// router.get(
+//     "/employees",
+//     authMiddleware,
+//     getEmployees
+// );
 
 
 

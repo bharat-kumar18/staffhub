@@ -18,6 +18,11 @@ const authRouter = require("./src/routes/auth.routes");
 app.use('/api', authRouter);
 
 
+
+const employeeRoutes = require("./src/routes/employee.routes");
+app.use("/api", employeeRoutes);
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
