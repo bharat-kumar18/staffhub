@@ -2,12 +2,17 @@ const express = require("express");
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-    sendWelcomeEmail,
-    sendOTPEmail,
-} = require("../utils/sendMail");
+const {sendWelcomeEmail,sendOTPEmail,} = require("../utils/sendMail");
 
 // Add Employees API
+
+// const pool = require("../config/db");
+// const bcrypt = require("bcrypt");
+
+
+// =====================================================
+// ADD EMPLOYEE
+// =====================================================
 
 exports.addEmployee = async (req, res) => {
 
@@ -42,7 +47,7 @@ exports.addEmployee = async (req, res) => {
 
 
         // -----------------------------------------
-        // 3. Verify logged-in user is Admin
+        // 3. Check Admin
         // -----------------------------------------
 
         const adminResult = await pool.query(
@@ -50,6 +55,7 @@ exports.addEmployee = async (req, res) => {
             SELECT
                 id,
                 name,
+                email,
                 company_name,
                 role_id,
                 is_active
@@ -66,10 +72,13 @@ exports.addEmployee = async (req, res) => {
 
             return res.status(403).json({
                 success: false,
-                message: "Only Admin can create employees"
+                message: "Admin not found or inactive"
             });
 
         }
+
+
+        const admin = adminResult.rows[0];
 
 
         // -----------------------------------------
@@ -107,7 +116,7 @@ exports.addEmployee = async (req, res) => {
 
 
         // -----------------------------------------
-        // 6. Insert into employees table
+        // 6. Insert Employee
         // -----------------------------------------
 
         const result = await pool.query(
@@ -121,12 +130,14 @@ exports.addEmployee = async (req, res) => {
             )
             VALUES
             ($1, $2, $3, $4)
+
             RETURNING
                 id,
                 admin_id,
                 name,
                 email,
-                created_at
+                created_at,
+                is_active
             `,
             [
                 adminId,
@@ -147,6 +158,12 @@ exports.addEmployee = async (req, res) => {
 
             message: "Employee created successfully",
 
+            company: admin.company_name,
+
+            addedBy: {
+                admin_id: adminId
+            },
+
             employee: result.rows[0]
 
         });
@@ -160,26 +177,19 @@ exports.addEmployee = async (req, res) => {
         );
 
 
-        // PostgreSQL duplicate email
         if (error.code === "23505") {
 
             return res.status(409).json({
-
                 success: false,
-
                 message: "Employee email already exists"
-
             });
 
         }
 
 
         return res.status(500).json({
-
             success: false,
-
             message: "Internal server error"
-
         });
 
     }
@@ -187,82 +197,271 @@ exports.addEmployee = async (req, res) => {
 };
 
 
+
 // =====================================================
-// GET ALL EMPLOYEES
+// GET EMPLOYEES
+// Pagination + Sorting + Search + is_active Filter
 // =====================================================
 
 exports.getEmployees = async (req, res) => {
 
     try {
 
-        // Logged-in Admin ID
+        // -----------------------------------------
+        // 1. Get Admin ID from JWT
+        // -----------------------------------------
+
         const adminId = req.user.id;
 
 
         // -----------------------------------------
-        // Get Admin + Company
+        // 2. Pagination
         // -----------------------------------------
 
-        const adminResult = await pool.query(
-            `
-            SELECT
-                id,
-                name,
-                company_name
-            FROM users
-            WHERE id = $1
-            AND role_id = 2
-            AND is_active = TRUE
-            `,
-            [adminId]
-        );
+        let page = parseInt(req.query.page) || 1;
+
+        let limit = parseInt(req.query.limit) || 10;
 
 
-        if (adminResult.rows.length === 0) {
+        if (page < 1) {
+            page = 1;
+        }
 
-            return res.status(403).json({
+        if (limit < 1) {
+            limit = 10;
+        }
 
-                success: false,
+        if (limit > 100) {
+            limit = 100;
+        }
 
-                message: "Admin not found"
 
-            });
+        const offset = (page - 1) * limit;
+
+
+        // -----------------------------------------
+        // 3. Search
+        // -----------------------------------------
+
+        const search = req.query.search || "";
+
+
+        // -----------------------------------------
+        // 4. is_active filter
+        //
+        // all      -> all employees
+        // true     -> active only
+        // false    -> inactive only
+        // -----------------------------------------
+
+        const isActive = req.query.is_active;
+
+
+        let activeCondition = "";
+
+        let queryParams = [
+            adminId
+        ];
+
+
+        if (isActive === "true") {
+
+            activeCondition = `
+                AND e.is_active = TRUE
+            `;
+
+        }
+        else if (isActive === "false") {
+
+            activeCondition = `
+                AND e.is_active = FALSE
+            `;
 
         }
 
 
-        const admin = adminResult.rows[0];
+        // -----------------------------------------
+        // 5. Search condition
+        // -----------------------------------------
+
+        let searchCondition = "";
+
+        if (search) {
+
+            queryParams.push(`%${search}%`);
+
+            searchCondition = `
+                AND (
+                    e.name ILIKE $${queryParams.length}
+                    OR e.email ILIKE $${queryParams.length}
+                )
+            `;
+
+        }
 
 
         // -----------------------------------------
-        // Get ONLY this Admin's employees
+        // 6. Sorting
         // -----------------------------------------
+
+        const allowedSortColumns = {
+
+            id: "e.id",
+
+            name: "e.name",
+
+            email: "e.email",
+
+            created_at: "e.created_at",
+
+            is_active: "e.is_active"
+
+        };
+
+
+        const sortBy = req.query.sortBy || "created_at";
+
+        const sortOrder =
+            req.query.sortOrder?.toUpperCase() === "ASC"
+                ? "ASC"
+                : "DESC";
+
+
+        const sortColumn =
+            allowedSortColumns[sortBy] ||
+            "e.created_at";
+
+
+        // -----------------------------------------
+        // 7. Count total employees
+        // -----------------------------------------
+
+        const countParams = [...queryParams];
+
+
+        const countResult = await pool.query(
+            `
+            SELECT COUNT(*) AS total
+
+            FROM employees e
+
+            WHERE e.admin_id = $1
+
+            ${activeCondition}
+
+            ${searchCondition}
+            `,
+            countParams
+        );
+
+
+        const totalEmployees =
+            parseInt(countResult.rows[0].total);
+
+
+        // -----------------------------------------
+        // 8. Get employees
+        // -----------------------------------------
+
+        queryParams.push(limit);
+
+        const limitIndex = queryParams.length;
+
+
+        queryParams.push(offset);
+
+        const offsetIndex = queryParams.length;
+
 
         const result = await pool.query(
             `
             SELECT
-                id,
-                admin_id,
-                name,
-                email,
-                created_at
-            FROM employees
-            WHERE admin_id = $1
-            ORDER BY created_at DESC
+                e.id,
+                e.admin_id,
+                e.name,
+                e.email,
+                e.created_at,
+                e.updated_at,
+                e.is_active,
+
+                u.company_name
+
+            FROM employees e
+
+            JOIN users u
+                ON e.admin_id = u.id
+
+            WHERE e.admin_id = $1
+
+            ${activeCondition}
+
+            ${searchCondition}
+
+            ORDER BY ${sortColumn} ${sortOrder}
+
+            LIMIT $${limitIndex}
+
+            OFFSET $${offsetIndex}
             `,
-            [adminId]
+            queryParams
         );
 
+
+        // -----------------------------------------
+        // 9. Pagination information
+        // -----------------------------------------
+
+        const totalPages =
+            Math.ceil(totalEmployees / limit);
+
+
+        // -----------------------------------------
+        // 10. Response
+        // -----------------------------------------
 
         return res.status(200).json({
 
             success: true,
 
-            company: admin.company_name,
+            message: "Employees fetched successfully",
 
-            admin: {
-                id: admin.id,
-                name: admin.name
+            company: result.rows.length > 0
+                ? result.rows[0].company_name
+                : null,
+
+            pagination: {
+
+                currentPage: page,
+
+                limit: limit,
+
+                totalEmployees: totalEmployees,
+
+                totalPages: totalPages,
+
+                hasNextPage: page < totalPages,
+
+                hasPreviousPage: page > 1
+
+            },
+
+            sorting: {
+
+                sortBy: sortBy,
+
+                sortOrder: sortOrder
+
+            },
+
+            filters: {
+
+                search: search,
+
+                is_active:
+                    isActive === undefined
+                        ? "all"
+                        : isActive
+
             },
 
             count: result.rows.length,
@@ -279,7 +478,6 @@ exports.getEmployees = async (req, res) => {
             error
         );
 
-
         return res.status(500).json({
 
             success: false,
@@ -293,30 +491,67 @@ exports.getEmployees = async (req, res) => {
 };
 
 
+
 // =====================================================
 // GET SINGLE EMPLOYEE
+// ID FROM BODY
 // =====================================================
 
 exports.getEmployeeById = async (req, res) => {
 
     try {
 
-        const { id } = req.params;
+        // -----------------------------------------
+        // Employee ID from BODY
+        // -----------------------------------------
+
+        const { id } = req.body;
+
+
+        // -----------------------------------------
+        // Logged-in Admin
+        // -----------------------------------------
 
         const adminId = req.user.id;
 
 
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Employee ID is required"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // Fetch employee
+        // -----------------------------------------
+
         const result = await pool.query(
             `
             SELECT
-                id,
-                admin_id,
-                name,
-                email,
-                created_at
-            FROM employees
-            WHERE id = $1
-            AND admin_id = $2
+                e.id,
+                e.admin_id,
+                e.name,
+                e.email,
+                e.created_at,
+                e.updated_at,
+                e.is_active,
+                u.company_name
+
+            FROM employees e
+
+            JOIN users u
+                ON e.admin_id = u.id
+
+            WHERE e.id = $1
+
+            AND e.admin_id = $2
             `,
             [
                 id,
@@ -331,7 +566,8 @@ exports.getEmployeeById = async (req, res) => {
 
                 success: false,
 
-                message: "Employee not found or access denied"
+                message:
+                    "Employee not found or access denied"
 
             });
 
@@ -350,10 +586,9 @@ exports.getEmployeeById = async (req, res) => {
     } catch (error) {
 
         console.error(
-            "Get Employee Error:",
+            "Get Employee By ID Error:",
             error
         );
-
 
         return res.status(500).json({
 
@@ -368,26 +603,28 @@ exports.getEmployeeById = async (req, res) => {
 };
 
 
+
 // =====================================================
 // UPDATE EMPLOYEE
+// ID FROM BODY
 // =====================================================
 
 exports.updateEmployee = async (req, res) => {
 
     try {
 
-        const { id } = req.params;
-
         const {
+            id,
             name,
             email
         } = req.body;
+
 
         const adminId = req.user.id;
 
 
         // -----------------------------------------
-        // Validate
+        // Validation
         // -----------------------------------------
 
         if (!id) {
@@ -409,7 +646,8 @@ exports.updateEmployee = async (req, res) => {
 
                 success: false,
 
-                message: "Name and email are required"
+                message:
+                    "Name and email are required"
 
             });
 
@@ -417,7 +655,7 @@ exports.updateEmployee = async (req, res) => {
 
 
         // -----------------------------------------
-        // Check employee belongs to this Admin
+        // Check employee belongs to Admin
         // -----------------------------------------
 
         const employeeResult = await pool.query(
@@ -440,7 +678,8 @@ exports.updateEmployee = async (req, res) => {
 
                 success: false,
 
-                message: "Employee not found or access denied"
+                message:
+                    "Employee not found or access denied"
 
             });
 
@@ -471,7 +710,8 @@ exports.updateEmployee = async (req, res) => {
 
                 success: false,
 
-                message: "This email is already registered"
+                message:
+                    "This email is already registered"
 
             });
 
@@ -485,17 +725,24 @@ exports.updateEmployee = async (req, res) => {
         const result = await pool.query(
             `
             UPDATE employees
+
             SET
                 name = $1,
-                email = $2
+                email = $2,
+                updated_at = CURRENT_TIMESTAMP
+
             WHERE id = $3
+
             AND admin_id = $4
+
             RETURNING
                 id,
                 admin_id,
                 name,
                 email,
-                created_at
+                created_at,
+                updated_at,
+                is_active
             `,
             [
                 name,
@@ -510,7 +757,12 @@ exports.updateEmployee = async (req, res) => {
 
             success: true,
 
-            message: "Employee updated successfully",
+            message:
+                "Employee updated successfully",
+
+            updatedBy: {
+                admin_id: adminId
+            },
 
             employee: result.rows[0]
 
@@ -523,6 +775,20 @@ exports.updateEmployee = async (req, res) => {
             "Update Employee Error:",
             error
         );
+
+
+        if (error.code === "23505") {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "This email is already registered"
+
+            });
+
+        }
 
 
         return res.status(500).json({
@@ -538,44 +804,38 @@ exports.updateEmployee = async (req, res) => {
 };
 
 
+
 // =====================================================
-// DELETE EMPLOYEE
+// SOFT DELETE EMPLOYEE
+// ID FROM BODY
 // =====================================================
 
 exports.deleteEmployee = async (req, res) => {
 
     try {
 
-        const { id } = req.params;
+        // -----------------------------------------
+        // Employee ID from BODY
+        // -----------------------------------------
+
+        const { id } = req.body;
+
+
+        // -----------------------------------------
+        // Logged-in Admin
+        // -----------------------------------------
 
         const adminId = req.user.id;
 
 
-        // -----------------------------------------
-        // Check employee belongs to Admin
-        // -----------------------------------------
+        if (!id) {
 
-        const employeeResult = await pool.query(
-            `
-            SELECT id
-            FROM employees
-            WHERE id = $1
-            AND admin_id = $2
-            `,
-            [
-                id,
-                adminId
-            ]
-        );
-
-
-        if (employeeResult.rows.length === 0) {
-
-            return res.status(404).json({
+            return res.status(400).json({
 
                 success: false,
 
-                message: "Employee not found or access denied"
+                message:
+                    "Employee ID is required"
 
             });
 
@@ -583,14 +843,30 @@ exports.deleteEmployee = async (req, res) => {
 
 
         // -----------------------------------------
-        // Delete employee
+        // Soft delete
         // -----------------------------------------
 
-        await pool.query(
+        const result = await pool.query(
             `
-            DELETE FROM employees
+            UPDATE employees
+
+            SET
+                is_active = FALSE,
+                updated_at = CURRENT_TIMESTAMP
+
             WHERE id = $1
+
             AND admin_id = $2
+
+            AND is_active = TRUE
+
+            RETURNING
+                id,
+                admin_id,
+                name,
+                email,
+                is_active,
+                updated_at
             `,
             [
                 id,
@@ -599,11 +875,32 @@ exports.deleteEmployee = async (req, res) => {
         );
 
 
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Employee not found, already deleted, or access denied"
+
+            });
+
+        }
+
+
         return res.status(200).json({
 
             success: true,
 
-            message: "Employee deleted successfully"
+            message:
+                "Employee deleted successfully",
+
+            deletedBy: {
+                admin_id: adminId
+            },
+
+            employee: result.rows[0]
 
         });
 
@@ -620,7 +917,8 @@ exports.deleteEmployee = async (req, res) => {
 
             success: false,
 
-            message: "Internal server error"
+            message:
+                "Internal server error"
 
         });
 

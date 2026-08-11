@@ -34,8 +34,8 @@ router.get(
 
 
 // Get Single Employee
-router.get(
-    "/employees/:id",
+router.post(
+    "/employeesById",
     authMiddleware,
     Admin,
     getEmployeeById
@@ -44,7 +44,7 @@ router.get(
 
 // Update Employee
 router.put(
-    "/employees/:id",
+    "/employees-update",
     authMiddleware,
     Admin,
     updateEmployee
@@ -52,8 +52,8 @@ router.put(
 
 
 // Delete Employee
-router.delete(
-    "/employees/:id",
+router.patch(
+    "/employees-delete",
     authMiddleware,
     Admin,
     deleteEmployee

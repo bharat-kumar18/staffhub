@@ -841,6 +841,10 @@ exports.changePassword = async (req, res) => {
 
 };
 
+
+
+
+
 // Get User API ONLY by SUPERADMIN
 exports.getAdmins = async (req, res) => {
 
@@ -921,6 +925,8 @@ exports.getAdmins = async (req, res) => {
             name: "users.name",
 
             email: "users.email",
+
+            company_name: "users.company_name",
 
             created_at: "users.created_at",
 
@@ -1117,6 +1123,7 @@ exports.getAdmins = async (req, res) => {
                 users.id,
                 users.name,
                 users.email,
+                company_name,
                 users.role_id,
                 roles.role_name,
                 users.is_active,
@@ -1236,7 +1243,6 @@ exports.getAdmins = async (req, res) => {
     }
 
 };
-
 
 // ADD ADMIN USER
 // ONLY SUPER ADMIN CAN USE THIS API
