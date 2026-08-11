@@ -32,7 +32,7 @@ router.post("/change-password", authMiddleware, changePassword);
 
 // SUPER ADMIN ONLY
 // Get all Admin users
-router.get(
+router.post(
     "/admins",
     authMiddleware,
     SuperAdmin,
