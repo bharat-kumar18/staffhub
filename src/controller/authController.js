@@ -1254,6 +1254,7 @@ exports.addUser = async (req, res) => {
         const {
             name,
             email,
+            companyName,
             password
         } = req.body;
 
@@ -1328,19 +1329,22 @@ exports.addUser = async (req, res) => {
             (
                 name,
                 email,
+                company_name,
                 password,
                 role_id
             )
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING
                 id,
                 name,
                 email,
+                company_name,
                 role_id,
                 created_at`,
             [
                 name,
                 email,
+                companyName,
                 hashedPassword,
                 adminRoleId
             ]
