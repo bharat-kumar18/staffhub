@@ -14,7 +14,7 @@ router.post( "/employees", authMiddleware, Admin, addEmployee);
 
 
 // Get Employees
-router.get("/employees", authMiddleware, Admin, getEmployees);
+router.post("/employees-get", authMiddleware, Admin, getEmployees);
 
 
 // Get Single Employee

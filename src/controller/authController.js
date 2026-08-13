@@ -843,8 +843,6 @@ exports.changePassword = async (req, res) => {
 
 
 
-
-
 // Get User API ONLY by SUPERADMIN
 exports.getAdmins = async (req, res) => {
 
@@ -1397,7 +1395,8 @@ exports.updateUser = async (req, res) => {
         const {
             id,
             name,
-            email
+            email,
+            companyName
         } = req.body;
 
 
@@ -1438,6 +1437,7 @@ exports.updateUser = async (req, res) => {
                 id,
                 name,
                 email,
+                company_name,
                 role_id
              FROM users
              WHERE id = $1
@@ -1499,20 +1499,23 @@ exports.updateUser = async (req, res) => {
             `UPDATE users
              SET
                 name = $1,
-                email = $2
-             WHERE id = $3
+                email = $2,
+                company_name= $3
+             WHERE id = $4
              AND role_id = 2
              AND is_active = TRUE
              RETURNING
                 id,
                 name,
                 email,
+                company_name,
                 role_id,
                 is_active,
                 created_at`,
             [
                 name,
                 email,
+                companyName,
                 id
             ]
         );

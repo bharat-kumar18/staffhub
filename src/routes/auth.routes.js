@@ -36,16 +36,7 @@ router.post(
     "/admins",
     authMiddleware,
     SuperAdmin,
-    getAdmins,
-    (req, res) => {
-
-        res.status(200).json({
-            success: true,
-            message: "Super Admin access granted",
-            user: req.user
-        });
-
-    }
+    getAdmins
 );
 // Add User-API
 
