@@ -752,18 +752,22 @@ exports.getEmployeeById = async (req, res) => {
     try {
 
         // -----------------------------------------
-        // Employee ID from BODY
+        // 1. Employee ID from BODY
         // -----------------------------------------
 
         const { id } = req.body;
 
 
         // -----------------------------------------
-        // Logged-in Admin
+        // 2. Logged-in Admin
         // -----------------------------------------
 
         const adminId = req.user.id;
 
+
+        // -----------------------------------------
+        // 3. Validate Employee ID
+        // -----------------------------------------
 
         if (!id) {
 
@@ -779,19 +783,37 @@ exports.getEmployeeById = async (req, res) => {
 
 
         // -----------------------------------------
-        // Fetch employee
+        // 4. Fetch Employee
         // -----------------------------------------
 
         const result = await pool.query(
             `
             SELECT
+
                 e.id,
+
                 e.admin_id,
+
                 e.name,
+
                 e.email,
+
+                e.department,
+
+                e.designation,
+
+                e.phone,
+
+                e.dob,
+
+                e.address,
+
                 e.created_at,
+
                 e.updated_at,
+
                 e.is_active,
+
                 u.company_name
 
             FROM employees e
@@ -810,6 +832,10 @@ exports.getEmployeeById = async (req, res) => {
         );
 
 
+        // -----------------------------------------
+        // 5. Employee Not Found
+        // -----------------------------------------
+
         if (result.rows.length === 0) {
 
             return res.status(404).json({
@@ -824,9 +850,15 @@ exports.getEmployeeById = async (req, res) => {
         }
 
 
+        // -----------------------------------------
+        // 6. Success Response
+        // -----------------------------------------
+
         return res.status(200).json({
 
             success: true,
+
+            message: "Employee fetched successfully",
 
             employee: result.rows[0]
 
@@ -839,6 +871,7 @@ exports.getEmployeeById = async (req, res) => {
             "Get Employee By ID Error:",
             error
         );
+
 
         return res.status(500).json({
 
