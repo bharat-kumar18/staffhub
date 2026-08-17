@@ -12,7 +12,8 @@ const {
 const {
     checkIn,
     checkOut,
-    getAttendance
+    getAttendance,
+    modifyAttendance
 } = require("../controller/attendanceController");
 
 // Employee check-in
@@ -35,6 +36,14 @@ router.post(
     authMiddleware,
     Admin,
     getAttendance
+);
+
+// Modify the Attendence
+router.patch(
+    "/attendance/modify",
+    authMiddleware,
+    Admin,
+    modifyAttendance
 );
 
 

@@ -13,7 +13,82 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 1. Find employee
+        // 1. Get location from request body
+        // -----------------------------------------
+
+        const {
+            latitude,
+            longitude
+        } = req.body;
+
+
+        // -----------------------------------------
+        // 2. Validate location
+        // -----------------------------------------
+
+        if (
+            latitude === undefined ||
+            longitude === undefined ||
+            latitude === null ||
+            longitude === null
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Current location is required. Please provide latitude and longitude"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 3. Validate latitude
+        // -----------------------------------------
+
+        if (
+            isNaN(latitude) ||
+            Number(latitude) < -90 ||
+            Number(latitude) > 90
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Invalid latitude"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 4. Validate longitude
+        // -----------------------------------------
+
+        if (
+            isNaN(longitude) ||
+            Number(longitude) < -180 ||
+            Number(longitude) > 180
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Invalid longitude"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 5. Find employee
         // -----------------------------------------
 
         const employeeResult = await pool.query(
@@ -57,7 +132,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 2. Get office timing
+        // 6. Get office timing
         // -----------------------------------------
 
         const timingResult = await pool.query(
@@ -96,7 +171,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 3. Current date/time
+        // 7. Current date/time
         // -----------------------------------------
 
         const now = new Date();
@@ -111,7 +186,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 4. Check already marked
+        // 8. Check already marked
         // -----------------------------------------
 
         const existingAttendance =
@@ -120,7 +195,9 @@ exports.checkIn = async (req, res) => {
                 SELECT
                     id,
                     check_in,
-                    status
+                    status,
+                    latitude,
+                    longitude
 
                 FROM attendance
 
@@ -151,8 +228,9 @@ exports.checkIn = async (req, res) => {
 
         }
 
+
         // -----------------------------------------
-        // 5. Decide status
+        // 9. Decide attendance status
         // -----------------------------------------
 
         let status = "present";
@@ -167,8 +245,9 @@ exports.checkIn = async (req, res) => {
 
         }
 
+
         // -----------------------------------------
-        // 6. Insert attendance
+        // 10. Insert attendance
         // -----------------------------------------
 
         const result = await pool.query(
@@ -179,11 +258,21 @@ exports.checkIn = async (req, res) => {
                 admin_id,
                 attendance_date,
                 check_in,
-                status
+                status,
+                latitude,
+                longitude
             )
 
             VALUES
-            ($1, $2, $3, $4, $5)
+            (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7
+            )
 
             RETURNING
                 id,
@@ -192,6 +281,8 @@ exports.checkIn = async (req, res) => {
                 attendance_date,
                 check_in,
                 status,
+                latitude,
+                longitude,
                 created_at
             `,
             [
@@ -199,10 +290,16 @@ exports.checkIn = async (req, res) => {
                 adminId,
                 attendanceDate,
                 currentTime,
-                status
+                status,
+                Number(latitude),
+                Number(longitude)
             ]
         );
 
+
+        // -----------------------------------------
+        // 11. Response
+        // -----------------------------------------
 
         return res.status(201).json({
 
@@ -235,6 +332,7 @@ exports.checkIn = async (req, res) => {
         });
 
     }
+
 };
 
 // =====================================================
@@ -359,7 +457,7 @@ exports.getAttendance = async (req, res) => {
             sortOrder = "DESC",
             searchByKeyword = "",
             status
-        } = req.body;
+        } = req.body || {};
 
 
         page = parseInt(page);
@@ -731,4 +829,229 @@ exports.getAttendance = async (req, res) => {
         });
 
     }
+};
+
+// ADMIN CAN MODIFY ATTENDENCE 
+
+
+exports.modifyAttendance = async (req, res) => {
+
+    try {
+
+        // -----------------------------------------
+        // 1. Get data from BODY
+        // -----------------------------------------
+
+        const {
+            id,
+            status,
+            check_in,
+            check_out
+        } = req.body;
+
+
+        // -----------------------------------------
+        // 2. Logged-in Admin
+        // -----------------------------------------
+
+        const adminId = req.user.id;
+
+
+        // -----------------------------------------
+        // 3. Validate Attendance ID
+        // -----------------------------------------
+
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message: "Attendance ID is required"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 4. Validate status
+        // -----------------------------------------
+
+        if (
+            status !== undefined &&
+            !["present", "absent", "late"].includes(status)
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid status. Use present, absent or late"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 5. Check Attendance
+        // -----------------------------------------
+
+        const attendanceResult = await pool.query(
+            `
+            SELECT
+                a.id,
+                a.employee_id,
+                a.admin_id,
+                a.attendance_date,
+                a.status,
+                a.check_in,
+                a.check_out,
+
+                e.name AS employee_name,
+                e.email AS employee_email
+
+            FROM attendance a
+
+            JOIN employees e
+                ON a.employee_id = e.id
+
+            WHERE a.id = $1
+
+            AND a.admin_id = $2
+
+            AND e.admin_id = $2
+            `,
+            [
+                id,
+                adminId
+            ]
+        );
+
+
+        if (attendanceResult.rows.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Attendance not found or access denied"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 6. Keep old values if not provided
+        // -----------------------------------------
+
+        const oldAttendance =
+            attendanceResult.rows[0];
+
+
+        const newStatus =
+            status !== undefined
+                ? status
+                : oldAttendance.status;
+
+
+        const newCheckIn =
+            check_in !== undefined
+                ? check_in
+                : oldAttendance.check_in;
+
+
+        const newCheckOut =
+            check_out !== undefined
+                ? check_out
+                : oldAttendance.check_out;
+
+
+        // -----------------------------------------
+        // 7. Update Attendance
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `
+            UPDATE attendance
+
+            SET
+                status = $1,
+                check_in = $2,
+                check_out = $3,
+                updated_at = CURRENT_TIMESTAMP
+
+            WHERE id = $4
+
+            AND admin_id = $5
+
+            RETURNING
+                id,
+                employee_id,
+                admin_id,
+                attendance_date,
+                check_in,
+                check_out,
+                status,
+                latitude,
+                longitude,
+                created_at,
+                updated_at
+            `,
+            [
+                newStatus,
+                newCheckIn,
+                newCheckOut,
+                id,
+                adminId
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 8. Response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Attendance modified successfully",
+
+            modifiedBy: {
+
+                admin_id: adminId
+
+            },
+
+            attendance:
+                result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Modify Attendance Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
 };
