@@ -183,102 +183,292 @@ exports.login = async (req, res) => {
 
     try {
 
-        const { email, password } = req.body;
+        const {
+            email,
+            password
+        } = req.body;
 
+
+        // -----------------------------------------
         // 1. Check fields
+        // -----------------------------------------
+
         if (!email || !password) {
 
             return res.status(400).json({
+
                 success: false,
+
                 message: "Email and password are required"
+
             });
 
         }
 
 
-        // 2. Get user + role
-        const result = await pool.query(
+        // =====================================================
+        // 2. FIRST CHECK ADMIN / SUPER ADMIN
+        // =====================================================
+
+        const userResult = await pool.query(
             `
-    SELECT
-        users.id,
-        users.name,
-        users.email,
-        users.password,
-        users.role_id,
-        users.company_name,
-        roles.role_name
-    FROM users
-    JOIN roles
-        ON users.role_id = roles.id
-    WHERE users.email = $1
-    AND users.is_active = TRUE
-    `,
+            SELECT
+                users.id,
+                users.name,
+                users.email,
+                users.password,
+                users.role_id,
+                users.company_name,
+                roles.role_name
+
+            FROM users
+
+            JOIN roles
+                ON users.role_id = roles.id
+
+            WHERE users.email = $1
+
+            AND users.is_active = TRUE
+            `,
             [email]
         );
 
 
-        // 3. User not found
-        if (result.rows.length === 0) {
+        // =====================================================
+        // 3. IF USER FOUND
+        // =====================================================
 
-            return res.status(401).json({
-                success: false,
-                message: "Invalid email or password"
+        if (userResult.rows.length > 0) {
+
+            const user = userResult.rows[0];
+
+
+            // Check password
+
+            const isPasswordCorrect =
+                await bcrypt.compare(
+                    password,
+                    user.password
+                );
+
+
+            if (!isPasswordCorrect) {
+
+                return res.status(401).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid email or password"
+
+                });
+
+            }
+
+
+            // -----------------------------------------
+            // Create JWT
+            // -----------------------------------------
+
+            const token = jwt.sign(
+
+                {
+                    id: user.id,
+
+                    email: user.email,
+
+                    role_id: user.role_id,
+
+                    role: user.role_name,
+
+                    company_name:
+                        user.company_name
+
+                },
+
+                process.env.JWT_SECRET,
+
+                {
+                    expiresIn: "1d"
+                }
+
+            );
+
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Login successful",
+
+                token: token,
+
+                user: {
+
+                    id: user.id,
+
+                    name: user.name,
+
+                    email: user.email,
+
+                    role_id:
+                        user.role_id,
+
+                    role:
+                        user.role_name,
+
+                    company_name:
+                        user.company_name
+
+                }
+
             });
 
         }
 
 
-        const user = result.rows[0];
+        // =====================================================
+        // 4. USER NOT FOUND
+        //    NOW CHECK EMPLOYEES TABLE
+        // =====================================================
 
+        const employeeResult = await pool.query(
+            `
+            SELECT
+                e.id,
+                e.admin_id,
+                e.name,
+                e.email,
+                e.password,
+                e.is_active,
 
-        // 4. Check password
-        const isPasswordCorrect = await bcrypt.compare(
-            password,
-            user.password
+                u.company_name
+
+            FROM employees e
+
+            JOIN users u
+                ON e.admin_id = u.id
+
+            WHERE e.email = $1
+
+            AND e.is_active = TRUE
+
+            AND u.is_active = TRUE
+            `,
+            [email]
         );
+
+
+        // =====================================================
+        // 5. EMPLOYEE NOT FOUND
+        // =====================================================
+
+        if (employeeResult.rows.length === 0) {
+
+            return res.status(401).json({
+
+                success: false,
+
+                message:
+                    "Invalid email or password"
+
+            });
+
+        }
+
+
+        const employee =
+            employeeResult.rows[0];
+
+
+        // =====================================================
+        // 6. CHECK EMPLOYEE PASSWORD
+        // =====================================================
+
+        const isPasswordCorrect =
+            await bcrypt.compare(
+                password,
+                employee.password
+            );
 
 
         if (!isPasswordCorrect) {
 
             return res.status(401).json({
+
                 success: false,
-                message: "Invalid email or password"
+
+                message:
+                    "Invalid email or password"
+
             });
 
         }
 
 
-        // 5. Create JWT
+        // =====================================================
+        // 7. EMPLOYEE JWT
+        // =====================================================
+
         const token = jwt.sign(
+
             {
-                id: user.id,
-                email: user.email,
-                role_id: user.role_id,
-                role: user.role_name,
-                company_name: user.company_name
+                id: employee.id,
+
+                email: employee.email,
+
+                role_id: 3,
+
+                role: "employee",
+
+                admin_id: employee.admin_id,
+
+                company_name:
+                    employee.company_name
+
             },
+
             process.env.JWT_SECRET,
+
             {
                 expiresIn: "1d"
             }
+
         );
 
 
-        // 6. Response
+        // =====================================================
+        // 8. EMPLOYEE RESPONSE
+        // =====================================================
+
         return res.status(200).json({
 
             success: true,
 
-            message: "Login successful",
+            message:
+                "Employee login successful",
 
             token: token,
 
             user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role_id: user.role_id,
-                role: user.role_name
+
+                id: employee.id,
+
+                name: employee.name,
+
+                email: employee.email,
+
+                role_id: 3,
+
+                role: "employee",
+
+                admin_id:
+                    employee.admin_id,
+
+                company_name:
+                    employee.company_name
+
             }
 
         });
@@ -286,11 +476,19 @@ exports.login = async (req, res) => {
 
     } catch (error) {
 
-        console.error("Login Error:", error);
+        console.error(
+            "Login Error:",
+            error
+        );
+
 
         return res.status(500).json({
+
             success: false,
-            message: "Internal server error"
+
+            message:
+                "Internal server error"
+
         });
 
     }

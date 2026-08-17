@@ -14,13 +14,26 @@ app.use(cors())
 const port = 3000
 
 
+// Auth
+
 const authRouter = require("./src/routes/auth.routes");
 app.use('/api', authRouter);
 
 
+// employees
 
 const employeeRoutes = require("./src/routes/employee.routes");
 app.use("/api", employeeRoutes);
+
+
+
+// Office Timing
+const officeTimingRoutes = require("./src/routes/officeTiming.routes");
+app.use("/api", officeTimingRoutes);
+
+const attendanceRoutes =require("./src/routes/attendance.routes");
+app.use("/api", attendanceRoutes);
+
 
 
 app.listen(port, () => {

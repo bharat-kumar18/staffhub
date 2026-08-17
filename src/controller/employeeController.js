@@ -8,8 +8,6 @@ const {sendWelcomeEmail,sendOTPEmail,} = require("../utils/sendMail");
 
 // const pool = require("../config/db");
 // const bcrypt = require("bcrypt");
-
-
 // =====================================================
 // ADD EMPLOYEE
 // =====================================================
@@ -237,8 +235,6 @@ exports.addEmployee = async (req, res) => {
     }
 
 };
-
-
 
 // =====================================================
 // GET EMPLOYEES
@@ -746,8 +742,6 @@ exports.getEmployees = async (req, res) => {
 
 };
 
-
-
 // =====================================================
 // GET SINGLE EMPLOYEE
 // ID FROM BODY
@@ -857,8 +851,6 @@ exports.getEmployeeById = async (req, res) => {
     }
 
 };
-
-
 
 // =====================================================
 // UPDATE EMPLOYEE
@@ -1116,8 +1108,6 @@ exports.updateEmployee = async (req, res) => {
     }
 
 };
-
-
 
 // =====================================================
 // SOFT DELETE EMPLOYEE
