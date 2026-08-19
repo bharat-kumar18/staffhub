@@ -233,7 +233,7 @@ exports.applyLeave = async (req, res) => {
 
         try {
 
-            await sendMail(
+            await sendLeaveRequestEmail(
 
                 employee.admin_email,
 
