@@ -36,6 +36,12 @@ app.use("/api", attendanceRoutes);
 
 
 
+// Leave 
+const leaveRoutes =require("./src/routes/leave.routes");
+app.use("/api", leaveRoutes);
+
+
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })

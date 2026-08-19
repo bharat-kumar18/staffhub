@@ -958,8 +958,258 @@ const sendOTPEmail = async (email, otp) => {
 };
 
 
+// ==========================================
+// SEND LEAVE REQUEST EMAIL TO ADMIN
+// ==========================================
+
+const sendLeaveRequestEmail = async ({
+    adminEmail,
+    employeeName,
+    employeeEmail,
+    fromDate,
+    toDate,
+    reason
+}) => {
+
+    try {
+
+        await transporter.sendMail({
+
+            from: `"StaffHUB" <${process.env.EMAIL_USER}>`,
+
+            to: adminEmail,
+
+            subject: `Leave Request - ${employeeName}`,
+
+            html: `
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 30px;
+                    background: #f8fafc;
+                ">
+
+                    <div style="
+                        background: #2563eb;
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                    ">
+                        <h2>StaffHUB</h2>
+                        <p>Employee Management System</p>
+                    </div>
+
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                    ">
+
+                        <h2>New Leave Request</h2>
+
+                        <p>
+                            <strong>${employeeName}</strong>
+                            has submitted a leave request.
+                        </p>
+
+                        <hr>
+
+                        <p>
+                            <strong>Employee:</strong>
+                            ${employeeName}
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong>
+                            ${employeeEmail}
+                        </p>
+
+                        <p>
+                            <strong>From Date:</strong>
+                            ${fromDate}
+                        </p>
+
+                        <p>
+                            <strong>To Date:</strong>
+                            ${toDate}
+                        </p>
+
+                        <p>
+                            <strong>Reason:</strong>
+                            ${reason}
+                        </p>
+
+                        <br>
+
+                        <p>
+                            Please login to StaffHUB and approve or reject
+                            this leave request.
+                        </p>
+
+                    </div>
+
+                </div>
+            `
+        });
+
+        console.log(
+            "Leave request email sent to:",
+            adminEmail
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Leave Request Email Error:",
+            error
+        );
+
+        throw error;
+    }
+};
+
+
+// ==========================================
+// SEND LEAVE STATUS EMAIL TO EMPLOYEE
+// ==========================================
+
+const sendLeaveStatusEmail = async ({
+    employeeEmail,
+    employeeName,
+    fromDate,
+    toDate,
+    status,
+    rejectionReason
+}) => {
+
+    try {
+
+        const isApproved = status === "approved";
+
+        await transporter.sendMail({
+
+            from: `"StaffHUB" <${process.env.EMAIL_USER}>`,
+
+            to: employeeEmail,
+
+            subject: isApproved
+                ? "Leave Request Approved"
+                : "Leave Request Rejected",
+
+            html: `
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 30px;
+                    background: #f8fafc;
+                ">
+
+                    <div style="
+                        background: #2563eb;
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                    ">
+
+                        <h2>StaffHUB</h2>
+
+                        <p>
+                            Employee Management System
+                        </p>
+
+                    </div>
+
+
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                    ">
+
+                        <h2>
+                            Leave Request
+                            ${isApproved
+                                ? "Approved"
+                                : "Rejected"}
+                        </h2>
+
+
+                        <p>
+                            Hello
+                            <strong>${employeeName}</strong>,
+                        </p>
+
+
+                        <p>
+                            Your leave request has been
+                            <strong>
+                                ${status.toUpperCase()}
+                            </strong>.
+                        </p>
+
+
+                        <hr>
+
+
+                        <p>
+                            <strong>From Date:</strong>
+                            ${fromDate}
+                        </p>
+
+
+                        <p>
+                            <strong>To Date:</strong>
+                            ${toDate}
+                        </p>
+
+
+                        ${
+                            !isApproved
+                                ? `
+                                    <p>
+                                        <strong>
+                                            Rejection Reason:
+                                        </strong>
+                                        ${rejectionReason}
+                                    </p>
+                                `
+                                : `
+                                    <p>
+                                        Your leave has been approved
+                                        by your Admin.
+                                    </p>
+                                `
+                        }
+
+
+                    </div>
+
+                </div>
+            `
+        });
+
+        console.log(
+            "Leave status email sent to:",
+            employeeEmail
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Leave Status Email Error:",
+            error
+        );
+
+        throw error;
+    }
+};
+
+
+
+
+
 // EXPORT
 
 
-module.exports = { sendOTPEmail, sendWelcomeEmail };
+module.exports = { sendOTPEmail, sendWelcomeEmail, sendLeaveRequestEmail, sendLeaveStatusEmail };
 // module.exports= sendWelcomeEmail;
