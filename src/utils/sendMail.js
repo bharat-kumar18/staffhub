@@ -1204,12 +1204,130 @@ const sendLeaveStatusEmail = async ({
     }
 };
 
+// Send the mail to the Employee
 
+const sendEmployeeWelcomeEmail = async ({
+    employeeEmail,
+    employeeName,
+    companyName
+}) => {
+
+    try {
+
+        const mailOptions = {
+
+            from: `"${companyName}" <${process.env.EMAIL_USER}>`,
+
+            to: employeeEmail,
+
+            subject: `Welcome to ${companyName}`,
+
+            html: `
+
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    background: #f5f7fb;
+                    padding: 30px;
+                ">
+
+                    <div style="
+                        background: white;
+                        padding: 30px;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+                    ">
+
+                        <h2 style="
+                            color: #2563eb;
+                            margin-bottom: 20px;
+                        ">
+                            Welcome to ${companyName}
+                        </h2>
+
+                        <p>
+                            Hello <strong>${employeeName}</strong>,
+                        </p>
+
+                        <p>
+                            We are happy to inform you that you have
+                            been added as an employee of
+                            <strong>${companyName}</strong>.
+                        </p>
+
+                        <div style="
+                            background: #f1f5f9;
+                            padding: 18px;
+                            border-radius: 8px;
+                            margin: 20px 0;
+                        ">
+
+                            <p style="margin: 5px 0;">
+                                <strong>Company:</strong>
+                                ${companyName}
+                            </p>
+
+                            <p style="margin: 5px 0;">
+                                <strong>Email:</strong>
+                                ${employeeEmail}
+                            </p>
+
+                        </div>
+
+                        <p>
+                            You can now use your registered email
+                            address to login to the StaffHUB system.
+                        </p>
+
+                        <p>
+                            Please contact your administrator if you
+                            need any assistance with your login details.
+                        </p>
+
+                        <hr style="
+                            border: none;
+                            border-top: 1px solid #ddd;
+                            margin: 25px 0;
+                        ">
+
+                        <p style="
+                            color: #666;
+                            font-size: 13px;
+                        ">
+                            Regards,<br>
+                            <strong>${companyName}</strong>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `
+        };
+
+
+        await transporter.sendMail(mailOptions);
+
+        console.log(
+            `Employee welcome email sent to ${employeeEmail}`
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Employee Welcome Email Error:",
+            error
+        );
+
+        throw error;
+    }
+};
 
 
 
 // EXPORT
 
 
-module.exports = { sendOTPEmail, sendWelcomeEmail, sendLeaveRequestEmail, sendLeaveStatusEmail };
+module.exports = { sendOTPEmail, sendWelcomeEmail, sendLeaveRequestEmail, sendLeaveStatusEmail, sendEmployeeWelcomeEmail };
 // module.exports= sendWelcomeEmail;
