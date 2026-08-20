@@ -827,29 +827,17 @@ exports.addEmployee = async (req, res) => {
             SELECT
 
                 e.id,
-
                 e.admin_id,
-
                 e.name,
-
                 e.email,
-
                 e.department,
-
                 e.designation,
-
                 e.phone,
-
                 e.dob,
-
                 e.address,
-
                 e.created_at,
-
                 e.updated_at,
-
                 e.is_active,
-
                 u.company_name
 
             FROM employees e
