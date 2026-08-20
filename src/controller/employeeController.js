@@ -2,7 +2,7 @@ const express = require("express");
 const pool = require("../config/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {sendWelcomeEmail,sendOTPEmail,} = require("../utils/sendMail");
+const { sendWelcomeEmail, sendOTPEmail, sendEmployeeWelcomeEmail } = require("../utils/sendMail");
 
 // Add Employees API
 
@@ -181,300 +181,247 @@ exports.addEmployee = async (req, res) => {
         );
 
 
+
         // -----------------------------------------
-        // 7. Response
+        // 7. Send Welcome Email
         // -----------------------------------------
 
-        return res.status(201).json({
+        try {
 
-            success: true,
+            await sendEmployeeWelcomeEmail({
 
-            message: "Employee created successfully",
+                employeeEmail:
+                    email,
 
-            company: admin.company_name,
+                employeeName:
+                    name,
 
-            addedBy: {
-                admin_id: adminId
-            },
-
-            employee: result.rows[0]
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Add Employee Error:",
-            error
-        );
-
-
-        // PostgreSQL UNIQUE constraint
-        if (error.code === "23505") {
-
-            return res.status(409).json({
-
-                success: false,
-
-                message: "Employee email already exists"
+                companyName:
+                    admin.company_name
 
             });
 
+        } catch (mailError) {
+
+            console.error(
+                "Employee Welcome Email Error:",
+                mailError
+            );
+
+            // Employee creation successful hai,
+            // email fail hone par employee creation
+            // fail nahi hogi.
         }
 
 
-        return res.status(500).json({
-
-            success: false,
-
-            message: "Internal server error"
-
-        });
-
-    }
-
-};
-
-// =====================================================
-// GET EMPLOYEES
-// Pagination + Sorting + Search + is_active Filter
-// =====================================================
-
-exports.getEmployees = async (req, res) => {
-
-    try {
-
-        // =====================================================
-        // 1. Logged-in Admin ID
-        // =====================================================
-
-        const adminId = req.user.id;
 
 
-        // =====================================================
-        // 2. Get pagination, sorting and filters from BODY
-        // =====================================================
 
-        let {
-            page = 1,
-            limit = 10,
-            sortedBy = "created_at",
-            sortOrder = "DESC",
-            searchByKeyword = "",
-            isActive
-        } = req.body || {};
+            // -----------------------------------------
+            // 8. Response
+            // -----------------------------------------
 
+            return res.status(201).json({
 
-        // =====================================================
-        // 3. Convert page and limit into numbers
-        // =====================================================
+                success: true,
 
-        page = parseInt(page);
-        limit = parseInt(limit);
+                message: "Employee created successfully",
 
+                company: admin.company_name,
 
-        // =====================================================
-        // 4. Validate page
-        // =====================================================
+                addedBy: {
+                    admin_id: adminId
+                },
 
-        if (isNaN(page) || page < 1) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Page must be a positive number"
+                employee: result.rows[0]
 
             });
 
-        }
 
+        } catch (error) {
 
-        // =====================================================
-        // 5. Validate limit
-        // =====================================================
-
-        if (isNaN(limit) || limit < 1) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Limit must be a positive number"
-
-            });
-
-        }
-
-
-        // Maximum 100 employees per page
-
-        if (limit > 100) {
-
-            limit = 100;
-
-        }
-
-
-        // =====================================================
-        // 6. Calculate OFFSET
-        // =====================================================
-
-        const offset =
-            (page - 1) * limit;
-
-
-        // =====================================================
-        // 7. Allowed sorting columns
-        // =====================================================
-
-        const allowedSortColumns = {
-
-            id: "employees.id",
-
-            name: "employees.name",
-
-            email: "employees.email",
-
-            department: "employees.department",
-
-            designation: "employees.designation",
-
-            phone: "employees.phone",
-
-            dob: "employees.dob",
-
-            created_at: "employees.created_at",
-
-            is_active: "employees.is_active"
-
-        };
-
-
-        // =====================================================
-        // 8. Validate sortedBy
-        // =====================================================
-
-        if (!allowedSortColumns[sortedBy]) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Invalid sortedBy. Allowed values: id, name, email, department, designation, phone, dob, created_at, is_active"
-
-            });
-
-        }
-
-
-        const sortColumn =
-            allowedSortColumns[sortedBy];
-
-
-        // =====================================================
-        // 9. Validate sortOrder
-        // =====================================================
-
-        sortOrder =
-            sortOrder.toUpperCase();
-
-
-        if (
-            !["ASC", "DESC"].includes(sortOrder)
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Invalid sortOrder. Use ASC or DESC"
-
-            });
-
-        }
-
-
-        // =====================================================
-        // 10. Create WHERE conditions
-        // =====================================================
-
-        const conditions = [
-
-            // VERY IMPORTANT:
-            // Employee belongs to logged-in Admin
-
-            "employees.admin_id = $1"
-
-        ];
-
-
-        // Admin ID is first parameter
-
-        const queryParams = [
-
-            adminId
-
-        ];
-
-
-        // =====================================================
-        // 11. Search by keyword
-        // =====================================================
-
-        if (
-            searchByKeyword &&
-            searchByKeyword.trim() !== ""
-        ) {
-
-            queryParams.push(
-                `%${searchByKeyword.trim()}%`
+            console.error(
+                "Add Employee Error:",
+                error
             );
 
 
-            const searchIndex =
-                queryParams.length;
+            // PostgreSQL UNIQUE constraint
+            if (error.code === "23505") {
+
+                return res.status(409).json({
+
+                    success: false,
+
+                    message: "Employee email already exists"
+
+                });
+
+            }
 
 
-            conditions.push(
+            return res.status(500).json({
 
-                `(
-                    employees.name ILIKE $${searchIndex}
-                    OR employees.email ILIKE $${searchIndex}
-                    OR employees.department ILIKE $${searchIndex}
-                    OR employees.designation ILIKE $${searchIndex}
-                    OR employees.phone ILIKE $${searchIndex}
-                )`
+                success: false,
 
-            );
+                message: "Internal server error"
+
+            });
 
         }
 
+    };
 
-        // =====================================================
-        // 12. Active / Inactive filter
-        // =====================================================
+    // =====================================================
+    // GET EMPLOYEES
+    // Pagination + Sorting + Search + is_active Filter
+    // =====================================================
 
-        if (
-            isActive !== undefined &&
-            isActive !== ""
-        ) {
+    exports.getEmployees = async (req, res) => {
+
+        try {
+
+            // =====================================================
+            // 1. Logged-in Admin ID
+            // =====================================================
+
+            const adminId = req.user.id;
 
 
-            // Validate true / false
+            // =====================================================
+            // 2. Get pagination, sorting and filters from BODY
+            // =====================================================
+
+            let {
+                page = 1,
+                limit = 10,
+                sortedBy = "created_at",
+                sortOrder = "DESC",
+                searchByKeyword = "",
+                isActive
+            } = req.body || {};
+
+
+            // =====================================================
+            // 3. Convert page and limit into numbers
+            // =====================================================
+
+            page = parseInt(page);
+            limit = parseInt(limit);
+
+
+            // =====================================================
+            // 4. Validate page
+            // =====================================================
+
+            if (isNaN(page) || page < 1) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Page must be a positive number"
+
+                });
+
+            }
+
+
+            // =====================================================
+            // 5. Validate limit
+            // =====================================================
+
+            if (isNaN(limit) || limit < 1) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Limit must be a positive number"
+
+                });
+
+            }
+
+
+            // Maximum 100 employees per page
+
+            if (limit > 100) {
+
+                limit = 100;
+
+            }
+
+
+            // =====================================================
+            // 6. Calculate OFFSET
+            // =====================================================
+
+            const offset =
+                (page - 1) * limit;
+
+
+            // =====================================================
+            // 7. Allowed sorting columns
+            // =====================================================
+
+            const allowedSortColumns = {
+
+                id: "employees.id",
+
+                name: "employees.name",
+
+                email: "employees.email",
+
+                department: "employees.department",
+
+                designation: "employees.designation",
+
+                phone: "employees.phone",
+
+                dob: "employees.dob",
+
+                created_at: "employees.created_at",
+
+                is_active: "employees.is_active"
+
+            };
+
+
+            // =====================================================
+            // 8. Validate sortedBy
+            // =====================================================
+
+            if (!allowedSortColumns[sortedBy]) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Invalid sortedBy. Allowed values: id, name, email, department, designation, phone, dob, created_at, is_active"
+
+                });
+
+            }
+
+
+            const sortColumn =
+                allowedSortColumns[sortedBy];
+
+
+            // =====================================================
+            // 9. Validate sortOrder
+            // =====================================================
+
+            sortOrder =
+                sortOrder.toUpperCase();
+
 
             if (
-
-                isActive !== true &&
-                isActive !== false &&
-                isActive !== "true" &&
-                isActive !== "false"
-
+                !["ASC", "DESC"].includes(sortOrder)
             ) {
 
                 return res.status(400).json({
@@ -482,47 +429,136 @@ exports.getEmployees = async (req, res) => {
                     success: false,
 
                     message:
-                        "isActive must be true or false"
+                        "Invalid sortOrder. Use ASC or DESC"
 
                 });
 
             }
 
 
-            // Convert string into boolean
+            // =====================================================
+            // 10. Create WHERE conditions
+            // =====================================================
 
-            const activeValue =
-                isActive === true ||
-                isActive === "true";
+            const conditions = [
 
+                // VERY IMPORTANT:
+                // Employee belongs to logged-in Admin
 
-            queryParams.push(
-                activeValue
-            );
+                "employees.admin_id = $1"
 
-
-            conditions.push(
-
-                `employees.is_active = $${queryParams.length}`
-
-            );
-
-        }
+            ];
 
 
-        // =====================================================
-        // 13. Create WHERE clause
-        // =====================================================
+            // Admin ID is first parameter
 
-        const whereClause =
-            conditions.join(" AND ");
+            const queryParams = [
+
+                adminId
+
+            ];
 
 
-        // =====================================================
-        // 14. Count total employees
-        // =====================================================
+            // =====================================================
+            // 11. Search by keyword
+            // =====================================================
 
-        const countQuery = `
+            if (
+                searchByKeyword &&
+                searchByKeyword.trim() !== ""
+            ) {
+
+                queryParams.push(
+                    `%${searchByKeyword.trim()}%`
+                );
+
+
+                const searchIndex =
+                    queryParams.length;
+
+
+                conditions.push(
+
+                    `(
+                    employees.name ILIKE $${searchIndex}
+                    OR employees.email ILIKE $${searchIndex}
+                    OR employees.department ILIKE $${searchIndex}
+                    OR employees.designation ILIKE $${searchIndex}
+                    OR employees.phone ILIKE $${searchIndex}
+                )`
+
+                );
+
+            }
+
+
+            // =====================================================
+            // 12. Active / Inactive filter
+            // =====================================================
+
+            if (
+                isActive !== undefined &&
+                isActive !== ""
+            ) {
+
+
+                // Validate true / false
+
+                if (
+
+                    isActive !== true &&
+                    isActive !== false &&
+                    isActive !== "true" &&
+                    isActive !== "false"
+
+                ) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            "isActive must be true or false"
+
+                    });
+
+                }
+
+
+                // Convert string into boolean
+
+                const activeValue =
+                    isActive === true ||
+                    isActive === "true";
+
+
+                queryParams.push(
+                    activeValue
+                );
+
+
+                conditions.push(
+
+                    `employees.is_active = $${queryParams.length}`
+
+                );
+
+            }
+
+
+            // =====================================================
+            // 13. Create WHERE clause
+            // =====================================================
+
+            const whereClause =
+                conditions.join(" AND ");
+
+
+            // =====================================================
+            // 14. Count total employees
+            // =====================================================
+
+            const countQuery = `
 
             SELECT COUNT(*) AS total
 
@@ -533,40 +569,40 @@ exports.getEmployees = async (req, res) => {
         `;
 
 
-        const countResult =
-            await pool.query(
-                countQuery,
-                queryParams
-            );
+            const countResult =
+                await pool.query(
+                    countQuery,
+                    queryParams
+                );
 
 
-        const totalEmployees =
-            parseInt(
-                countResult.rows[0].total
-            );
+            const totalEmployees =
+                parseInt(
+                    countResult.rows[0].total
+                );
 
 
-        // =====================================================
-        // 15. Pagination parameters
-        // =====================================================
+            // =====================================================
+            // 15. Pagination parameters
+            // =====================================================
 
-        queryParams.push(limit);
+            queryParams.push(limit);
 
-        const limitIndex =
-            queryParams.length;
-
-
-        queryParams.push(offset);
-
-        const offsetIndex =
-            queryParams.length;
+            const limitIndex =
+                queryParams.length;
 
 
-        // =====================================================
-        // 16. Get Employees
-        // =====================================================
+            queryParams.push(offset);
 
-        const employeesQuery = `
+            const offsetIndex =
+                queryParams.length;
+
+
+            // =====================================================
+            // 16. Get Employees
+            // =====================================================
+
+            const employeesQuery = `
 
             SELECT
 
@@ -615,179 +651,179 @@ exports.getEmployees = async (req, res) => {
         `;
 
 
-        const result =
-            await pool.query(
-                employeesQuery,
-                queryParams
+            const result =
+                await pool.query(
+                    employeesQuery,
+                    queryParams
+                );
+
+
+            // =====================================================
+            // 17. Calculate total pages
+            // =====================================================
+
+            const totalPages =
+                Math.ceil(
+                    totalEmployees / limit
+                );
+
+
+            // =====================================================
+            // 18. Company Name
+            // =====================================================
+
+            const companyName =
+                result.rows.length > 0
+                    ? result.rows[0].company_name
+                    : null;
+
+
+            // =====================================================
+            // 19. Response
+            // =====================================================
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Employees fetched successfully",
+
+
+                company:
+                    companyName,
+
+
+                pagination: {
+
+                    currentPage:
+                        page,
+
+                    limit:
+                        limit,
+
+                    totalEmployees:
+                        totalEmployees,
+
+                    totalPages:
+                        totalPages,
+
+                    hasNextPage:
+                        page < totalPages,
+
+                    hasPreviousPage:
+                        page > 1
+
+                },
+
+
+                sorting: {
+
+                    sortedBy:
+                        sortedBy,
+
+                    sortOrder:
+                        sortOrder
+
+                },
+
+
+                filters: {
+
+                    searchByKeyword:
+                        searchByKeyword,
+
+                    isActive:
+                        isActive === undefined ||
+                            isActive === ""
+                            ? "all"
+                            : (
+                                isActive === true ||
+                                    isActive === "true"
+                                    ? true
+                                    : false
+                            )
+
+                },
+
+
+                count:
+                    result.rows.length,
+
+
+                employees:
+                    result.rows
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Get Employees Error:",
+                error
             );
 
 
-        // =====================================================
-        // 17. Calculate total pages
-        // =====================================================
-
-        const totalPages =
-            Math.ceil(
-                totalEmployees / limit
-            );
-
-
-        // =====================================================
-        // 18. Company Name
-        // =====================================================
-
-        const companyName =
-            result.rows.length > 0
-                ? result.rows[0].company_name
-                : null;
-
-
-        // =====================================================
-        // 19. Response
-        // =====================================================
-
-        return res.status(200).json({
-
-            success: true,
-
-            message:
-                "Employees fetched successfully",
-
-
-            company:
-                companyName,
-
-
-            pagination: {
-
-                currentPage:
-                    page,
-
-                limit:
-                    limit,
-
-                totalEmployees:
-                    totalEmployees,
-
-                totalPages:
-                    totalPages,
-
-                hasNextPage:
-                    page < totalPages,
-
-                hasPreviousPage:
-                    page > 1
-
-            },
-
-
-            sorting: {
-
-                sortedBy:
-                    sortedBy,
-
-                sortOrder:
-                    sortOrder
-
-            },
-
-
-            filters: {
-
-                searchByKeyword:
-                    searchByKeyword,
-
-                isActive:
-                    isActive === undefined ||
-                    isActive === ""
-                        ? "all"
-                        : (
-                            isActive === true ||
-                            isActive === "true"
-                                ? true
-                                : false
-                        )
-
-            },
-
-
-            count:
-                result.rows.length,
-
-
-            employees:
-                result.rows
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Get Employees Error:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Internal server error"
-
-        });
-
-    }
-
-};
-
-// =====================================================
-// GET SINGLE EMPLOYEE
-// ID FROM BODY
-// =====================================================
-
-exports.getEmployeeById = async (req, res) => {
-
-    try {
-
-        // -----------------------------------------
-        // 1. Employee ID from BODY
-        // -----------------------------------------
-
-        const { id } = req.body;
-
-
-        // -----------------------------------------
-        // 2. Logged-in Admin
-        // -----------------------------------------
-
-        const adminId = req.user.id;
-
-
-        // -----------------------------------------
-        // 3. Validate Employee ID
-        // -----------------------------------------
-
-        if (!id) {
-
-            return res.status(400).json({
+            return res.status(500).json({
 
                 success: false,
 
-                message: "Employee ID is required"
+                message:
+                    "Internal server error"
 
             });
 
         }
 
+    };
 
-        // -----------------------------------------
-        // 4. Fetch Employee
-        // -----------------------------------------
+    // =====================================================
+    // GET SINGLE EMPLOYEE
+    // ID FROM BODY
+    // =====================================================
 
-        const result = await pool.query(
-            `
+    exports.getEmployeeById = async (req, res) => {
+
+        try {
+
+            // -----------------------------------------
+            // 1. Employee ID from BODY
+            // -----------------------------------------
+
+            const { id } = req.body;
+
+
+            // -----------------------------------------
+            // 2. Logged-in Admin
+            // -----------------------------------------
+
+            const adminId = req.user.id;
+
+
+            // -----------------------------------------
+            // 3. Validate Employee ID
+            // -----------------------------------------
+
+            if (!id) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message: "Employee ID is required"
+
+                });
+
+            }
+
+
+            // -----------------------------------------
+            // 4. Fetch Employee
+            // -----------------------------------------
+
+            const result = await pool.query(
+                `
             SELECT
 
                 e.id,
@@ -825,129 +861,129 @@ exports.getEmployeeById = async (req, res) => {
 
             AND e.admin_id = $2
             `,
-            [
+                [
+                    id,
+                    adminId
+                ]
+            );
+
+
+            // -----------------------------------------
+            // 5. Employee Not Found
+            // -----------------------------------------
+
+            if (result.rows.length === 0) {
+
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        "Employee not found or access denied"
+
+                });
+
+            }
+
+
+            // -----------------------------------------
+            // 6. Success Response
+            // -----------------------------------------
+
+            return res.status(200).json({
+
+                success: true,
+
+                message: "Employee fetched successfully",
+
+                employee: result.rows[0]
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Get Employee By ID Error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message: "Internal server error"
+
+            });
+
+        }
+
+    };
+
+    // =====================================================
+    // UPDATE EMPLOYEE
+    // ID FROM BODY
+    // =====================================================
+
+    exports.updateEmployee = async (req, res) => {
+
+        try {
+
+            const {
                 id,
-                adminId
-            ]
-        );
+                name,
+                email,
+                designation,
+                phone,
+                department,
+                address
+            } = req.body;
 
 
-        // -----------------------------------------
-        // 5. Employee Not Found
-        // -----------------------------------------
-
-        if (result.rows.length === 0) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Employee not found or access denied"
-
-            });
-
-        }
+            const adminId = req.user.id;
 
 
-        // -----------------------------------------
-        // 6. Success Response
-        // -----------------------------------------
+            // -----------------------------------------
+            // 1. Validate Employee ID
+            // -----------------------------------------
 
-        return res.status(200).json({
+            if (!id) {
 
-            success: true,
+                return res.status(400).json({
 
-            message: "Employee fetched successfully",
+                    success: false,
 
-            employee: result.rows[0]
+                    message: "Employee ID is required"
 
-        });
+                });
 
-
-    } catch (error) {
-
-        console.error(
-            "Get Employee By ID Error:",
-            error
-        );
+            }
 
 
-        return res.status(500).json({
+            // -----------------------------------------
+            // 2. Validate required fields
+            // -----------------------------------------
 
-            success: false,
+            if (!name || !email) {
 
-            message: "Internal server error"
+                return res.status(400).json({
 
-        });
+                    success: false,
 
-    }
+                    message: "Name and email are required"
 
-};
+                });
 
-// =====================================================
-// UPDATE EMPLOYEE
-// ID FROM BODY
-// =====================================================
-
-exports.updateEmployee = async (req, res) => {
-
-    try {
-
-        const {
-            id,
-            name,
-            email,
-            designation,
-            phone,
-            department,
-            address
-        } = req.body;
+            }
 
 
-        const adminId = req.user.id;
+            // -----------------------------------------
+            // 3. Check employee belongs to logged-in Admin
+            // -----------------------------------------
 
-
-        // -----------------------------------------
-        // 1. Validate Employee ID
-        // -----------------------------------------
-
-        if (!id) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Employee ID is required"
-
-            });
-
-        }
-
-
-        // -----------------------------------------
-        // 2. Validate required fields
-        // -----------------------------------------
-
-        if (!name || !email) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Name and email are required"
-
-            });
-
-        }
-
-
-        // -----------------------------------------
-        // 3. Check employee belongs to logged-in Admin
-        // -----------------------------------------
-
-        const employeeResult = await pool.query(
-            `
+            const employeeResult = await pool.query(
+                `
             SELECT
                 id,
                 admin_id,
@@ -965,33 +1001,33 @@ exports.updateEmployee = async (req, res) => {
 
             AND admin_id = $2
             `,
-            [
-                id,
-                adminId
-            ]
-        );
+                [
+                    id,
+                    adminId
+                ]
+            );
 
 
-        if (employeeResult.rows.length === 0) {
+            if (employeeResult.rows.length === 0) {
 
-            return res.status(404).json({
+                return res.status(404).json({
 
-                success: false,
+                    success: false,
 
-                message:
-                    "Employee not found or access denied"
+                    message:
+                        "Employee not found or access denied"
 
-            });
+                });
 
-        }
+            }
 
 
-        // -----------------------------------------
-        // 4. Check duplicate email
-        // -----------------------------------------
+            // -----------------------------------------
+            // 4. Check duplicate email
+            // -----------------------------------------
 
-        const emailResult = await pool.query(
-            `
+            const emailResult = await pool.query(
+                `
             SELECT id
 
             FROM employees
@@ -1000,33 +1036,33 @@ exports.updateEmployee = async (req, res) => {
 
             AND id != $2
             `,
-            [
-                email,
-                id
-            ]
-        );
+                [
+                    email,
+                    id
+                ]
+            );
 
 
-        if (emailResult.rows.length > 0) {
+            if (emailResult.rows.length > 0) {
 
-            return res.status(409).json({
+                return res.status(409).json({
 
-                success: false,
+                    success: false,
 
-                message:
-                    "This email is already registered"
+                    message:
+                        "This email is already registered"
 
-            });
+                });
 
-        }
+            }
 
 
-        // -----------------------------------------
-        // 5. Update Employee
-        // -----------------------------------------
+            // -----------------------------------------
+            // 5. Update Employee
+            // -----------------------------------------
 
-        const result = await pool.query(
-            `
+            const result = await pool.query(
+                `
             UPDATE employees
 
             SET
@@ -1073,118 +1109,118 @@ exports.updateEmployee = async (req, res) => {
 
                 is_active
             `,
-            [
-                name,
-                email,
-                designation,
-                phone,
-                department,
-                address,
-                id,
-                adminId
-            ]
-        );
+                [
+                    name,
+                    email,
+                    designation,
+                    phone,
+                    department,
+                    address,
+                    id,
+                    adminId
+                ]
+            );
 
 
-        // -----------------------------------------
-        // 6. Response
-        // -----------------------------------------
+            // -----------------------------------------
+            // 6. Response
+            // -----------------------------------------
 
-        return res.status(200).json({
+            return res.status(200).json({
 
-            success: true,
+                success: true,
 
-            message:
-                "Employee updated successfully",
+                message:
+                    "Employee updated successfully",
 
-            updatedBy: {
-                admin_id: adminId
-            },
+                updatedBy: {
+                    admin_id: adminId
+                },
 
-            employee: result.rows[0]
+                employee: result.rows[0]
 
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Update Employee Error:",
-            error
-        );
+            });
 
 
-        // PostgreSQL UNIQUE constraint
-        if (error.code === "23505") {
+        } catch (error) {
 
-            return res.status(409).json({
+            console.error(
+                "Update Employee Error:",
+                error
+            );
+
+
+            // PostgreSQL UNIQUE constraint
+            if (error.code === "23505") {
+
+                return res.status(409).json({
+
+                    success: false,
+
+                    message:
+                        "This email is already registered"
+
+                });
+
+            }
+
+
+            return res.status(500).json({
 
                 success: false,
 
                 message:
-                    "This email is already registered"
+                    "Internal server error"
 
             });
 
         }
 
+    };
 
-        return res.status(500).json({
+    // =====================================================
+    // SOFT DELETE EMPLOYEE
+    // ID FROM BODY
+    // =====================================================
 
-            success: false,
+    exports.deleteEmployee = async (req, res) => {
 
-            message:
-                "Internal server error"
+        try {
 
-        });
+            // -----------------------------------------
+            // Employee ID from BODY
+            // -----------------------------------------
 
-    }
-
-};
-
-// =====================================================
-// SOFT DELETE EMPLOYEE
-// ID FROM BODY
-// =====================================================
-
-exports.deleteEmployee = async (req, res) => {
-
-    try {
-
-        // -----------------------------------------
-        // Employee ID from BODY
-        // -----------------------------------------
-
-        const { id } = req.body;
+            const { id } = req.body;
 
 
-        // -----------------------------------------
-        // Logged-in Admin
-        // -----------------------------------------
+            // -----------------------------------------
+            // Logged-in Admin
+            // -----------------------------------------
 
-        const adminId = req.user.id;
-
-
-        if (!id) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Employee ID is required"
-
-            });
-
-        }
+            const adminId = req.user.id;
 
 
-        // -----------------------------------------
-        // Soft delete
-        // -----------------------------------------
+            if (!id) {
 
-        const result = await pool.query(
-            `
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Employee ID is required"
+
+                });
+
+            }
+
+
+            // -----------------------------------------
+            // Soft delete
+            // -----------------------------------------
+
+            const result = await pool.query(
+                `
             UPDATE employees
 
             SET
@@ -1205,60 +1241,60 @@ exports.deleteEmployee = async (req, res) => {
                 is_active,
                 updated_at
             `,
-            [
-                id,
-                adminId
-            ]
-        );
+                [
+                    id,
+                    adminId
+                ]
+            );
 
 
-        if (result.rows.length === 0) {
+            if (result.rows.length === 0) {
 
-            return res.status(404).json({
+                return res.status(404).json({
+
+                    success: false,
+
+                    message:
+                        "Employee not found, already deleted, or access denied"
+
+                });
+
+            }
+
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Employee deleted successfully",
+
+                deletedBy: {
+                    admin_id: adminId
+                },
+
+                employee: result.rows[0]
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Delete Employee Error:",
+                error
+            );
+
+
+            return res.status(500).json({
 
                 success: false,
 
                 message:
-                    "Employee not found, already deleted, or access denied"
+                    "Internal server error"
 
             });
 
         }
 
-
-        return res.status(200).json({
-
-            success: true,
-
-            message:
-                "Employee deleted successfully",
-
-            deletedBy: {
-                admin_id: adminId
-            },
-
-            employee: result.rows[0]
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Delete Employee Error:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Internal server error"
-
-        });
-
-    }
-
-};
+    };

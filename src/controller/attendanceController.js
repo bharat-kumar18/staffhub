@@ -88,7 +88,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 5. Find employee
+        // 5. Find Employee
         // -----------------------------------------
 
         const employeeResult = await pool.query(
@@ -132,7 +132,108 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 6. Get office timing
+        // 6. Get Current Date
+        // -----------------------------------------
+
+        const now = new Date();
+
+        const attendanceDate =
+            new Intl.DateTimeFormat(
+                "en-CA",
+                {
+                    timeZone: "Asia/Kolkata"
+                }
+            ).format(now);
+
+
+        const currentTime =
+            new Intl.DateTimeFormat(
+                "en-GB",
+                {
+                    timeZone: "Asia/Kolkata",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: false
+                }
+            ).format(now);
+
+
+        console.log(
+            "Attendance Date:",
+            attendanceDate
+        );
+
+        console.log(
+            "Current Time:",
+            currentTime
+        );
+
+
+        // -----------------------------------------
+        // 7. CHECK COMPANY HOLIDAY
+        // -----------------------------------------
+
+        const holidayResult = await pool.query(
+            `
+            SELECT
+                id,
+                holiday_name,
+                holiday_date,
+                description
+
+            FROM holidays
+
+            WHERE admin_id = $1
+
+            AND holiday_date = $2
+            `,
+            [
+                adminId,
+                attendanceDate
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 8. If Today is Holiday
+        // -----------------------------------------
+
+        if (holidayResult.rows.length > 0) {
+
+            const holiday =
+                holidayResult.rows[0];
+
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Today is a company holiday. Attendance cannot be marked.",
+
+                holiday: {
+
+                    id: holiday.id,
+
+                    holiday_name:
+                        holiday.holiday_name,
+
+                    holiday_date:
+                        holiday.holiday_date,
+
+                    description:
+                        holiday.description
+
+                }
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 9. Get Office Timing
         // -----------------------------------------
 
         const timingResult = await pool.query(
@@ -171,22 +272,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 7. Current date/time
-        // -----------------------------------------
-
-        const now = new Date();
-
-
-        const attendanceDate =
-            now.toISOString().split("T")[0];
-
-
-        const currentTime =
-            now.toTimeString().split(" ")[0];
-
-
-        // -----------------------------------------
-        // 8. Check already marked
+        // 10. Check Already Marked Attendance
         // -----------------------------------------
 
         const existingAttendance =
@@ -230,7 +316,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 9. Decide attendance status
+        // 11. Decide Attendance Status
         // -----------------------------------------
 
         let status = "present";
@@ -247,7 +333,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 10. Insert attendance
+        // 12. Insert Attendance
         // -----------------------------------------
 
         const result = await pool.query(
@@ -298,7 +384,7 @@ exports.checkIn = async (req, res) => {
 
 
         // -----------------------------------------
-        // 11. Response
+        // 13. Response
         // -----------------------------------------
 
         return res.status(201).json({

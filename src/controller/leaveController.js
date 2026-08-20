@@ -767,3 +767,918 @@ exports.decideLeave = async (req, res) => {
     }
 
 };
+
+// ADD HOLIDAY 
+
+exports.addHoliday = async (req, res) => {
+
+    try {
+
+        const adminId = req.user.id;
+
+        const {
+            holiday_name,
+            holiday_date,
+            description
+        } = req.body;
+
+
+        // -----------------------------------------
+        // 1. Validate
+        // -----------------------------------------
+
+        if (!holiday_name || !holiday_date) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Holiday name and holiday date are required"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 2. Check Admin
+        // -----------------------------------------
+
+        const adminResult = await pool.query(
+            `
+            SELECT
+                id,
+                company_name,
+                is_active
+
+            FROM users
+
+            WHERE id = $1
+
+            AND role_id = 2
+
+            AND is_active = TRUE
+            `,
+            [adminId]
+        );
+
+
+        if (adminResult.rows.length === 0) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "Admin not found or inactive"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 3. Check duplicate holiday
+        // -----------------------------------------
+
+        const existingHoliday = await pool.query(
+            `
+            SELECT id
+
+            FROM holidays
+
+            WHERE admin_id = $1
+
+            AND holiday_date = $2
+            `,
+            [
+                adminId,
+                holiday_date
+            ]
+        );
+
+
+        if (existingHoliday.rows.length > 0) {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "Holiday already exists for this date"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 4. Insert Holiday
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `
+            INSERT INTO holidays
+            (
+                admin_id,
+                holiday_name,
+                holiday_date,
+                description
+            )
+
+            VALUES
+            ($1, $2, $3, $4)
+
+            RETURNING
+                id,
+                admin_id,
+                holiday_name,
+                holiday_date,
+                description,
+                is_active,
+                created_at,
+                updated_at
+            `,
+            [
+                adminId,
+                holiday_name,
+                holiday_date,
+                description || null
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 5. Response
+        // -----------------------------------------
+
+        return res.status(201).json({
+
+            success: true,
+
+            message:
+                "Holiday added successfully",
+
+            addedBy: {
+
+                admin_id: adminId
+
+            },
+
+            holiday:
+                result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Add Holiday Error:",
+            error
+        );
+
+
+        if (error.code === "23505") {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "Holiday already exists for this date"
+
+            });
+
+        }
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+// GET HOLIDAY
+
+exports.getHolidays = async (req, res) => {
+
+    try {
+
+        const adminId = req.user.id;
+
+
+        // -----------------------------------------
+        // 1. Get data from BODY
+        // -----------------------------------------
+
+        let {
+            page = 1,
+            limit = 10,
+            sortedBy = "holiday_date",
+            sortOrder = "ASC",
+            searchByKeyword = "",
+            isActive
+        } = req.body;
+
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+
+        // -----------------------------------------
+        // 2. Validate pagination
+        // -----------------------------------------
+
+        if (isNaN(page) || page < 1) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Page must be a positive number"
+
+            });
+
+        }
+
+
+        if (isNaN(limit) || limit < 1) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Limit must be a positive number"
+
+            });
+
+        }
+
+
+        if (limit > 100) {
+
+            limit = 100;
+
+        }
+
+
+        const offset =
+            (page - 1) * limit;
+
+
+        // -----------------------------------------
+        // 3. Allowed sorting
+        // -----------------------------------------
+
+        const allowedSortColumns = {
+
+            id: "h.id",
+
+            holiday_name: "h.holiday_name",
+
+            holiday_date: "h.holiday_date",
+
+            created_at: "h.created_at",
+
+            is_active: "h.is_active"
+
+        };
+
+
+        if (!allowedSortColumns[sortedBy]) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid sortedBy. Allowed values: id, holiday_name, holiday_date, created_at, is_active"
+
+            });
+
+        }
+
+
+        const sortColumn =
+            allowedSortColumns[sortedBy];
+
+
+        // -----------------------------------------
+        // 4. Sort order
+        // -----------------------------------------
+
+        sortOrder =
+            sortOrder.toUpperCase();
+
+
+        if (
+            !["ASC", "DESC"]
+                .includes(sortOrder)
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Invalid sortOrder. Use ASC or DESC"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 5. Conditions
+        // -----------------------------------------
+
+        const conditions = [
+
+            "h.admin_id = $1"
+
+        ];
+
+
+        const queryParams = [
+
+            adminId
+
+        ];
+
+
+        // -----------------------------------------
+        // 6. Search
+        // -----------------------------------------
+
+        if (
+            searchByKeyword &&
+            searchByKeyword.trim() !== ""
+        ) {
+
+            queryParams.push(
+                `%${searchByKeyword.trim()}%`
+            );
+
+
+            conditions.push(
+                `
+                (
+                    h.holiday_name ILIKE $${queryParams.length}
+
+                    OR
+
+                    h.description ILIKE $${queryParams.length}
+                )
+                `
+            );
+
+        }
+
+
+        // -----------------------------------------
+        // 7. Active filter
+        // -----------------------------------------
+
+        if (
+            isActive !== undefined &&
+            isActive !== ""
+        ) {
+
+            if (
+                isActive !== true &&
+                isActive !== false &&
+                isActive !== "true" &&
+                isActive !== "false"
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "isActive must be true or false"
+
+                });
+
+            }
+
+
+            const activeValue =
+                isActive === true ||
+                isActive === "true";
+
+
+            queryParams.push(activeValue);
+
+
+            conditions.push(
+                `h.is_active = $${queryParams.length}`
+            );
+
+        }
+
+
+        const whereClause =
+            conditions.join(" AND ");
+
+
+        // -----------------------------------------
+        // 8. Count
+        // -----------------------------------------
+
+        const countResult =
+            await pool.query(
+                `
+                SELECT COUNT(*) AS total
+
+                FROM holidays h
+
+                WHERE ${whereClause}
+                `,
+                queryParams
+            );
+
+
+        const totalHolidays =
+            parseInt(
+                countResult.rows[0].total
+            );
+
+
+        // -----------------------------------------
+        // 9. Pagination parameters
+        // -----------------------------------------
+
+        queryParams.push(limit);
+
+        const limitIndex =
+            queryParams.length;
+
+
+        queryParams.push(offset);
+
+        const offsetIndex =
+            queryParams.length;
+
+
+        // -----------------------------------------
+        // 10. Get holidays
+        // -----------------------------------------
+
+        const result =
+            await pool.query(
+                `
+                SELECT
+
+                    h.id,
+
+                    h.admin_id,
+
+                    u.company_name,
+
+                    h.holiday_name,
+
+                    h.holiday_date,
+
+                    h.description,
+
+                    h.is_active,
+
+                    h.created_at,
+
+                    h.updated_at
+
+                FROM holidays h
+
+                JOIN users u
+                    ON h.admin_id = u.id
+
+                WHERE ${whereClause}
+
+                ORDER BY
+                    ${sortColumn}
+                    ${sortOrder}
+
+                LIMIT $${limitIndex}
+
+                OFFSET $${offsetIndex}
+                `,
+                queryParams
+            );
+
+
+        // -----------------------------------------
+        // 11. Pagination
+        // -----------------------------------------
+
+        const totalPages =
+            Math.ceil(
+                totalHolidays / limit
+            );
+
+
+        // -----------------------------------------
+        // 12. Response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Holidays fetched successfully",
+
+            pagination: {
+
+                currentPage: page,
+
+                limit: limit,
+
+                totalHolidays:
+
+                    totalHolidays,
+
+                totalPages:
+
+                    totalPages,
+
+                hasNextPage:
+                    page < totalPages,
+
+                hasPreviousPage:
+                    page > 1
+
+            },
+
+            sorting: {
+
+                sortedBy: sortedBy,
+
+                sortOrder: sortOrder
+
+            },
+
+            filters: {
+
+                searchByKeyword:
+                    searchByKeyword,
+
+                isActive:
+                    isActive === undefined ||
+                    isActive === ""
+                        ? "all"
+                        : (
+                            isActive === true ||
+                            isActive === "true"
+                                ? true
+                                : false
+                        )
+
+            },
+
+            count:
+                result.rows.length,
+
+            holidays:
+                result.rows
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Get Holidays Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+// UPDATE HOLIDAY
+
+exports.updateHoliday = async (req, res) => {
+
+    try {
+
+        const adminId = req.user.id;
+
+        const {
+            id,
+            holiday_name,
+            holiday_date,
+            description
+        } = req.body;
+
+
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Holiday ID is required"
+
+            });
+
+        }
+
+
+        if (!holiday_name || !holiday_date) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Holiday name and holiday date are required"
+
+            });
+
+        }
+
+
+        // Check holiday
+        const holidayResult =
+            await pool.query(
+                `
+                SELECT id
+
+                FROM holidays
+
+                WHERE id = $1
+
+                AND admin_id = $2
+                `,
+                [
+                    id,
+                    adminId
+                ]
+            );
+
+
+        if (holidayResult.rows.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Holiday not found or access denied"
+
+            });
+
+        }
+
+
+        // Check duplicate date
+        const duplicate =
+            await pool.query(
+                `
+                SELECT id
+
+                FROM holidays
+
+                WHERE admin_id = $1
+
+                AND holiday_date = $2
+
+                AND id != $3
+                `,
+                [
+                    adminId,
+                    holiday_date,
+                    id
+                ]
+            );
+
+
+        if (duplicate.rows.length > 0) {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "Another holiday already exists on this date"
+
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                UPDATE holidays
+
+                SET
+
+                    holiday_name = $1,
+
+                    holiday_date = $2,
+
+                    description = $3,
+
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = $4
+
+                AND admin_id = $5
+
+                RETURNING
+
+                    id,
+                    admin_id,
+                    holiday_name,
+                    holiday_date,
+                    description,
+                    is_active,
+                    created_at,
+                    updated_at
+                `,
+                [
+                    holiday_name,
+                    holiday_date,
+                    description || null,
+                    id,
+                    adminId
+                ]
+            );
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Holiday updated successfully",
+
+            updatedBy: {
+
+                admin_id: adminId
+
+            },
+
+            holiday:
+                result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Update Holiday Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+// DELETE HOLIDAY
+
+exports.deleteHoliday = async (req, res) => {
+
+    try {
+
+        const adminId = req.user.id;
+
+        const { id } = req.body;
+
+
+        if (!id) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Holiday ID is required"
+
+            });
+
+        }
+
+
+        const result =
+            await pool.query(
+                `
+                UPDATE holidays
+
+                SET
+
+                    is_active = FALSE,
+
+                    updated_at =
+                        CURRENT_TIMESTAMP
+
+                WHERE id = $1
+
+                AND admin_id = $2
+
+                AND is_active = TRUE
+
+                RETURNING
+
+                    id,
+                    admin_id,
+                    holiday_name,
+                    holiday_date,
+                    is_active,
+                    updated_at
+                `,
+                [
+                    id,
+                    adminId
+                ]
+            );
+
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Holiday not found, already deleted, or access denied"
+
+            });
+
+        }
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Holiday deleted successfully",
+
+            deletedBy: {
+
+                admin_id: adminId
+
+            },
+
+            holiday:
+                result.rows[0]
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete Holiday Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};

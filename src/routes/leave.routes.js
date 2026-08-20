@@ -11,7 +11,11 @@ const {
 
 const {
     applyLeave,
-    decideLeave
+    decideLeave,
+    addHoliday,
+    getHolidays,
+    updateHoliday,
+    deleteHoliday
 } = require("../controller/leaveController");
 
 // =====================================================
@@ -25,5 +29,21 @@ router.post("/leave/apply", authMiddleware, applyLeave );
 // =====================================================
 
 router.patch("/leave/decision", authMiddleware, Admin, decideLeave );
+
+// Add Holiday
+router.post("/holidays", authMiddleware, Admin, addHoliday);
+
+
+// Get Holidays
+router.post("/holidays/list", authMiddleware, Admin, getHolidays);
+
+
+// Update Holiday
+router.put("/holidays/update", authMiddleware, Admin, updateHoliday);
+
+
+// Delete Holiday
+router.patch("/holidays/delete", authMiddleware, Admin, deleteHoliday);
+
 
 module.exports = router;
