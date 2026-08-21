@@ -1,0 +1,152 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    overflow: hidden;
+}
+
+.otp-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../../assets/images/bg_wave.png');
+    position: relative;
+  
+
+    background-size: cover;
+    background-size: 100% 100%;
+
+/* background-repeat: no-repeat; */
+/* background-position: center; */
+}
+
+.otp-container::before,
+.otp-container::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: .4;
+}
+
+.otp-container::before {
+    width: 280px;
+    height: 280px;
+    background: #4f8dfd;
+    top: -80px;
+    left: -80px;
+}
+
+.otp-container::after {
+    width: 320px;
+    height: 320px;
+    background: #4fd8c8;
+    right: -80px;
+    bottom: -80px;
+}
+
+.otp-box {
+    width: 430px;
+    background: #fff;
+    padding: 45px 35px;
+    border-radius: 22px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, .15);
+    text-align: center;
+    animation: fade .5s ease;
+    z-index: 1;
+      border:1px solid blue;
+}
+
+.otp-box h2 {
+    font-size: 32px;
+   color: #2563eb;
+    margin-bottom: 12px;
+}
+
+.otp-box p {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 24px;
+}
+
+.otp-box input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+   
+    text-align: center;
+    outline: none;
+    margin-bottom: 25px;
+    transition: .3s;
+     font-size: 10px;
+    letter-spacing: 1px;
+}
+.otp-box input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 10px rgba(37, 99, 235, .2);
+}
+
+.otp-box button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.otp-box button:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+.otp-links {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.resend-btn {
+    background: none !important;
+    color: #2563eb !important;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    width: auto !important;
+    padding: 0 !important;
+}
+
+.otp-links a {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.otp-links a:hover {
+    text-decoration: underline;
+}
+
+@keyframes fade {
+
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}

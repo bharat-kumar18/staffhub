@@ -1,0 +1,136 @@
+:root {
+
+  /* ===========================
+      BRAND COLORS
+  =========================== */
+
+  --primary-color: #2563eb;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-dark: #1e3a8a;
+
+  --secondary-color: #475569;
+  --secondary-hover: #334155;
+  --secondary-light: #f8fafc;
+
+  /* ===========================
+      STATUS COLORS
+  =========================== */
+
+  --success-color: #16a34a;
+  --success-light: #dcfce7;
+
+  --danger-color: #dc2626;
+  --danger-light: #fee2e2;
+
+  --warning-color: #d97706;
+  --warning-light: #fef3c7;
+
+  --info-color: #0891b2;
+  --info-light: #cffafe;
+
+  /* ===========================
+      TEXT COLORS
+  =========================== */
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-white: #ffffff;
+
+  /* ===========================
+      BACKGROUND COLORS
+  =========================== */
+
+  --background-color: #f8fafc;
+  --surface-color: #ACE7F2;
+
+  /* --background-image:url(./assets/bg_wave.png); */
+
+  /* Dashboard Sidebar */
+  --sidebar-color: #0f172a;
+
+  /* Navbar */
+  --navbar-color: #ffffff;
+
+  /* Hover Background */
+  --hover-bg: #f1f5f9;
+
+  /* Active Menu */
+  --active-bg: #dbeafe;
+
+  /* ===========================
+      BORDER COLORS
+  =========================== */
+
+  --border-color: #e2e8f0;
+  --border-dark: #cbd5e1;
+
+  /* ===========================
+      TYPOGRAPHY
+  =========================== */
+
+  --font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 30px;
+  --font-size-3xl: 36px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ===========================
+      SPACING
+  =========================== */
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ===========================
+      BORDER RADIUS
+  =========================== */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* ===========================
+      SHADOW
+  =========================== */
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 12px 30px rgba(15, 23, 42, 0.14);
+
+  /* ===========================
+      LAYOUT
+  =========================== */
+
+  --container-width: 1400px;
+  --sidebar-width: 260px;
+  --navbar-height: 70px;
+
+  /* ===========================
+      TRANSITION
+  =========================== */
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
