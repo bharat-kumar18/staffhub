@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import "./ResetPassword.css";
 import { resetPassword} from "../../Services/api";
+import { ToastContainer,toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ const ResetPassword = () => {
       });
 
       const successMessage = getResponseMessage(response?.data);
-      alert(successMessage);
+      toast.success(successMessage);
       localStorage.removeItem("resetToken");
       navigate("/login");
     }

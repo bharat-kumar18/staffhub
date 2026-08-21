@@ -1,114 +1,331 @@
 import React, { useState } from "react";
 import "./Login.css";
-import { Link } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaUserAlt, FaLock } from "react-icons/fa";
-import { assets } from '../../assets/assets.js';
-import { LoginUser } from "../../Services/api.js"
+import { Link, useNavigate } from "react-router-dom";
+
+import {
+    FaEye,
+    FaEyeSlash,
+    FaUserAlt,
+    FaLock
+} from "react-icons/fa";
+
+import { assets } from "../../assets/assets.js";
+import { LoginUser } from "../../Services/api.js";
+
+// Toastify
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 const Login = () => {
+
+    const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    //     // validation of email and passward
+
+    // ==========================================
+    // LOGIN
+    // ==========================================
+
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+
+        try {
+
+            // ==========================================
+            // LOGIN API
+            // ==========================================
+
+            const res = await LoginUser({
+                email: email.trim(),
+                password: password
+            });
+
+            console.log("Login Response:", res.data);
 
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
+            // ==========================================
+            // SAVE JWT TOKEN
+            // ==========================================
 
-  try {
-    const res = await LoginUser({
-      email: email.trim(),
-      password,
-    });
+            localStorage.setItem(
+                "token",
+                res.data.token
+            );
 
-    // JWT Token Save
-    localStorage.setItem("token", res.data.token);
 
-    // User Save
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
+            // ==========================================
+            // SAVE USER
+            // ==========================================
 
-    alert(res.data.message);
+            localStorage.setItem(
+                "user",
+                JSON.stringify(res.data.user)
+            );
 
-    navigate("/dashboard");
 
-  } catch (err) {
-    alert(err.response?.data?.message || "Invalid email or password");
-  }
-};
+            // ==========================================
+            // RESET SIDEBAR TAB
+            // ==========================================
+
+            sessionStorage.removeItem("activePage");
+
+
+            // ==========================================
+            // GET USER ROLE
+            // ==========================================
+
+            const role = res.data.user?.role;
+
+            console.log("User Role:", role);
+
+
+            // ==========================================
+            // INVALID ROLE
+            // ==========================================
+
+            if (
+                role !== "superadmin" &&
+                role !== "admin" &&
+                role !== "employee"
+            ) {
+
+                toast.error("Invalid user role");
+
+                return;
+            }
+
+
+            // ==========================================
+            // SUCCESS TOAST
+            // ==========================================
+
+            toast.success("Login successful!", {
+                autoClose: 800,
+            });
+
+
+            // ==========================================
+            // ROLE BASED NAVIGATION
+            // ==========================================
+
+            setTimeout(() => {
+
+                // SUPER ADMIN
+
+                if (role === "superadmin") {
+
+                    navigate("/superadmindashboard");
+
+                }
+
+                // ADMIN
+
+                else if (role === "admin") {
+
+                    navigate("/dashboard");
+
+                }
+
+                // EMPLOYEE
+
+                else if (role === "employee") {
+
+                    navigate("/employee-dashboard");
+
+                }
+
+            }, 800);
+
+
+        } catch (err) {
+
+            console.error("Login Error:", err);
+
+
+            // ==========================================
+            // ERROR TOAST
+            // ==========================================
+
+            toast.error(
+                err.response?.data?.message ||
+                "Invalid email or password"
+            );
+        }
+    };
 
 
     return (
+
         <div className="login-container">
+
+
+            {/* ==========================================
+                LOGIN BOX
+            ========================================== */}
+
             <div className="login-box">
 
+
+                {/* ==========================================
+                    LOGO
+                ========================================== */}
+
                 <div className="logo">
-                    <img src={assets.logo} alt="StaffHub Logo" />
+
+                    <img
+                        src={assets.logo}
+                        alt="StaffHub Logo"
+                    />
+
                 </div>
+
+
+                {/* ==========================================
+                    WELCOME TEXT
+                ========================================== */}
 
                 <p>Welcome</p>
 
+
+                {/* ==========================================
+                    LOGIN FORM
+                ========================================== */}
+
                 <form onSubmit={handleSubmit}>
 
+
+                    {/* ==========================================
+                        EMAIL
+                    ========================================== */}
+
                     <div className="input-box">
+
                         <FaUserAlt className="icon" />
+
                         <input
                             type="email"
                             placeholder="Email Address"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) =>
+                                setEmail(e.target.value)
+                            }
                             required
                         />
 
                     </div>
 
+
+                    {/* ==========================================
+                        PASSWORD
+                    ========================================== */}
+
                     <div className="input-box">
+
                         <FaLock className="icon" />
 
                         <input
-                            type={showPassword ? "text" : "password"}
+                            type={
+                                showPassword
+                                    ? "text"
+                                    : "password"
+                            }
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) =>
+                                setPassword(e.target.value)
+                            }
                             required
                         />
 
+
+                        {/* PASSWORD SHOW / HIDE */}
+
                         <span
                             className="eye"
-                            onClick={() => setShowPassword(!showPassword)}
+                            onClick={() =>
+                                setShowPassword(
+                                    !showPassword
+                                )
+                            }
                         >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+
+                            {showPassword
+                                ? <FaEyeSlash />
+                                : <FaEye />
+                            }
+
                         </span>
 
                     </div>
 
+
+                    {/* ==========================================
+                        LOGIN OPTIONS
+                    ========================================== */}
+
                     <div className="login-options">
+
                         <label>
-                            <input type="checkbox" />
+
+                            <input
+                                type="checkbox"
+                            />
+
                             Remember Me
+
                         </label>
 
-                        <Link to="/forgot-password">Forgot Password?</Link>
+
+                        <Link to="/forgot-password">
+                            Forgot Password?
+                        </Link>
+
                     </div>
 
-                    <button className="login-btn">
+
+                    {/* ==========================================
+                        LOGIN BUTTON
+                    ========================================== */}
+
+                    <button
+                        type="submit"
+                        className="login-btn"
+                    >
                         Login
                     </button>
 
                 </form>
+
+
+                {/* ==========================================
+                    SIGNUP
+                ========================================== */}
+
                 <div className="signup-link">
+
                     <p>
+
                         Don't have an account?
-                        <Link to="/signup"> Sign Up</Link>
+
+                        <Link to="/signup">
+                            {" "}Sign Up
+                        </Link>
+
                     </p>
+
                 </div>
 
+
             </div>
+
         </div>
     );
 };
+
 
 export default Login;

@@ -1,0 +1,2152 @@
+/* =========================================================
+   MANAGE USERS - MAIN CONTAINER
+========================================================= */
+
+.manage-users {
+    width: 100%;
+    min-height: 100vh;
+
+    padding: 28px 30px;
+
+    background: #f3f6f0;
+    color: #172033;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.manage-users-header {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 22px;
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+.manage-users-header>div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.manage-users-header h1 {
+    margin: 0;
+
+    font-size: 28px;
+    line-height: 1.2;
+
+    font-weight: 700;
+
+    color: #172033;
+}
+
+.manage-users-header p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #718096;
+}
+
+
+/* =========================================================
+   ADD USER BUTTON
+========================================================= */
+
+.add-user-btn {
+    width: auto;
+    min-width: 125px;
+    height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 0 18px;
+    margin: 0;
+
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    text-align: center;
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.18);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.add-user-btn svg {
+    width: 15px;
+    height: 15px;
+
+    flex-shrink: 0;
+}
+
+.add-user-btn:hover:not(:disabled) {
+    background: #4338ca;
+    border-color: #4338ca;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.25);
+}
+
+.add-user-btn:active:not(:disabled) {
+    transform: translateY(0);
+
+    box-shadow: 0 3px 7px rgba(79, 70, 229, 0.18);
+}
+
+.add-user-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.25);
+    outline-offset: 2px;
+}
+
+.add-user-btn:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.users-toolbar {
+    width: 100%;
+
+    display: flex;
+    align-items: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    padding: 20px;
+
+    margin-bottom: 17px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   SEARCH BOX
+========================================================= */
+
+.user-search {
+    width: 340px;
+    min-width: 250px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 13px;
+
+    background: #ffffff;
+
+    border: 1px solid #d6dce5;
+    border-radius: 8px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.user-search svg {
+    flex-shrink: 0;
+
+    color: #7a8596;
+
+    font-size: 15px;
+}
+
+.user-search:focus-within {
+    background: #ffffff;
+
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.user-search input {
+    width: 100%;
+    height: 100%;
+
+    padding: 0;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #172033;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    box-sizing: border-box;
+}
+
+.user-search input::placeholder {
+    color: #9aa4b2;
+}
+
+
+/* =========================================================
+   FILTER GROUP
+========================================================= */
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+
+    flex-shrink: 0;
+}
+
+.filter-group label {
+    margin: 0;
+
+    font-size: 12px;
+    line-height: 1;
+
+    font-weight: 600;
+
+    color: #667085;
+}
+
+
+/* =========================================================
+   SORT SELECT
+========================================================= */
+
+.filter-select {
+    position: relative;
+
+    width: 185px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+
+    background: #ffffff;
+
+    border: 1px solid #d6dce5;
+    border-radius: 8px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.filter-select>svg {
+    position: absolute;
+
+    left: 13px;
+
+    color: #7a8596;
+
+    font-size: 14px;
+
+    pointer-events: none;
+
+    z-index: 1;
+}
+
+.filter-select select {
+    width: 100%;
+    height: 100%;
+
+    padding: 0 12px 0 36px;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #344054;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+}
+
+.filter-select:focus-within {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+
+/* =========================================================
+   NORMAL FILTER SELECT
+========================================================= */
+
+.normal-filter-select {
+    width: 160px;
+    height: 44px;
+
+    padding: 0 12px;
+
+    background: #ffffff;
+
+    border: 1px solid #d6dce5;
+    border-radius: 8px;
+
+    outline: none;
+
+    color: #344054;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.normal-filter-select:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.normal-filter-select:disabled,
+.filter-select select:disabled {
+    background: #f5f6f8;
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   USERS COUNT
+========================================================= */
+
+.users-count {
+    margin: 0 0 11px 0;
+
+    font-size: 13px;
+
+    color: #667085;
+}
+
+.users-count strong {
+    color: #172033;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   USERS TABLE CARD
+========================================================= */
+
+.users-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+
+    overflow-x: auto;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.users-card table {
+    width: 100%;
+
+    min-width: 900px;
+
+    border-collapse: collapse;
+
+    text-align: left;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.users-card thead {
+    background: #f8fafc;
+}
+
+.users-card thead tr {
+    border-bottom: 1px solid #e5e9f0;
+}
+
+.users-card th {
+    padding: 15px 18px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #526071;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.35px;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.users-card tbody tr {
+    border-bottom: 1px solid #edf0f4;
+
+    transition:
+        background 0.15s ease;
+}
+
+.users-card tbody tr:last-child {
+    border-bottom: none;
+}
+
+.users-card tbody tr:hover {
+    background: #fafbff;
+}
+
+.users-card td {
+    padding: 16px 18px;
+
+    font-size: 14px;
+
+    color: #344054;
+
+    vertical-align: middle;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   FIRST COLUMN
+========================================================= */
+
+.users-card th:first-child,
+.users-card td:first-child {
+    width: 65px;
+}
+
+
+/* =========================================================
+   NAME
+========================================================= */
+
+.users-card td:nth-child(2) {
+    font-weight: 500;
+
+    color: #172033;
+}
+
+
+/* =========================================================
+   COMPANY
+========================================================= */
+
+.users-card td:nth-child(3) {
+    color: #475467;
+}
+
+
+/* =========================================================
+   EMAIL
+========================================================= */
+
+.users-card td:nth-child(4) {
+    color: #475467;
+}
+
+
+/* =========================================================
+   TABLE MESSAGE
+========================================================= */
+
+.table-message {
+    text-align: center !important;
+
+    padding: 45px 20px !important;
+
+    color: #8a94a6 !important;
+
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   ROLE BADGE
+========================================================= */
+
+.role-badge {
+    min-width: 62px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 11px;
+
+    border-radius: 20px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    text-transform: capitalize;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+.status-badge {
+    min-width: 65px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 5px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #ecfdf5;
+
+    color: #059669;
+}
+
+.status-badge.inactive {
+    background: #fef2f2;
+
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   ACTION HEADER
+========================================================= */
+
+.action-header {
+    width: 75px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   ACTION CELL
+========================================================= */
+
+.action-cell {
+    width: 75px;
+
+    text-align: center;
+
+    position: relative;
+}
+
+
+/* =========================================================
+   ACTION MENU
+========================================================= */
+
+.action-menu {
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   THREE DOT BUTTON
+========================================================= */
+
+.three-dot-btn {
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    margin: 0;
+
+    border: 1px solid transparent;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #667085;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.three-dot-btn svg {
+    width: 15px;
+    height: 15px;
+
+    flex-shrink: 0;
+}
+
+.three-dot-btn:hover:not(:disabled) {
+    background: #f1f3f7;
+
+    border-color: #e4e7ec;
+
+    color: #172033;
+}
+
+.three-dot-btn:active:not(:disabled) {
+    background: #e7eaf0;
+}
+
+.three-dot-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.18);
+
+    outline-offset: 2px;
+}
+
+.three-dot-btn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ACTION DROPDOWN
+========================================================= */
+
+.action-dropdown {
+    position: absolute;
+
+    right: 0;
+    top: calc(100% + 5px);
+
+    width: 145px;
+
+    padding: 6px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e7ec;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 12px 30px rgba(15, 23, 42, 0.14);
+
+    z-index: 100;
+
+    animation: dropdownShow 0.15s ease;
+}
+
+@keyframes dropdownShow {
+    from {
+        opacity: 0;
+
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   DROPDOWN BUTTON
+========================================================= */
+
+.action-dropdown button {
+    width: 100%;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 11px;
+    margin: 0;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    line-height: 1;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.action-dropdown button svg {
+    width: 14px;
+    height: 14px;
+
+    flex-shrink: 0;
+}
+
+.action-dropdown button:hover:not(:disabled) {
+    background: #f5f6f8;
+}
+
+.action-dropdown button:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.25);
+
+    outline-offset: -2px;
+}
+
+.action-dropdown button:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   EDIT BUTTON
+========================================================= */
+
+.dropdown-edit {
+    color: #2563eb;
+}
+
+.dropdown-edit:hover:not(:disabled) {
+    background: #eff6ff;
+
+    color: #1d4ed8;
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.dropdown-delete {
+    color: #dc2626;
+}
+
+.dropdown-delete:hover:not(:disabled) {
+    background: #fef2f2;
+
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.pagination {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 18px;
+
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   PAGINATION BUTTON
+========================================================= */
+
+.pagination button {
+    min-width: 95px;
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 15px;
+    margin: 0;
+
+    border: 1px solid #d6dce5;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #344054;
+
+    font-family: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-align: center;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #4f46e5;
+
+    border-color: #4f46e5;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+.pagination button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pagination button:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.20);
+
+    outline-offset: 2px;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+
+    background: #f8fafc;
+
+    transform: none;
+}
+
+.pagination span {
+    min-width: 100px;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    color: #667085;
+
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.55);
+
+    backdrop-filter: blur(4px);
+
+    box-sizing: border-box;
+
+    animation: overlayShow 0.18s ease;
+}
+
+@keyframes overlayShow {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* =========================================================
+   USER MODAL
+========================================================= */
+
+.user-modal {
+    width: 100%;
+    max-width: 560px;
+
+    max-height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 25px 60px rgba(15, 23, 42, 0.25);
+
+    animation: modalShow 0.2s ease;
+}
+
+@keyframes modalShow {
+    from {
+        opacity: 0;
+
+        transform: translateY(-15px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.modal-header {
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 22px 24px;
+
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+}
+
+.modal-header-text {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.modal-eyebrow {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.6px;
+
+    text-transform: uppercase;
+
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.modal-header h2 {
+    margin: 0;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   MODAL CLOSE BUTTON
+========================================================= */
+
+.modal-close-btn {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    margin: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.10);
+
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 20px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.modal-close-btn svg {
+    width: 20px;
+    height: 20px;
+
+    display: block;
+
+    flex-shrink: 0;
+
+    margin: 0;
+    padding: 0;
+
+    line-height: 1;
+
+    transform: translate(0, 0);
+}
+
+.modal-close-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.22);
+
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.modal-close-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.modal-close-btn:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.45);
+
+    outline-offset: 2px;
+}
+
+.modal-close-btn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.user-form {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 0;
+}
+
+.user-form-body {
+    overflow-y: auto;
+
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   FORM ROW / GRID
+========================================================= */
+
+.form-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 16px;
+}
+
+
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.form-group {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    min-width: 0;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 12.5px;
+
+    font-weight: 600;
+
+    color: #475467;
+
+    letter-spacing: 0.1px;
+}
+
+.form-group label svg {
+    width: 12px;
+    height: 12px;
+
+    flex-shrink: 0;
+
+    color: #8891a5;
+}
+
+
+/* =========================================================
+   INPUTS / SELECT
+========================================================= */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    height: 46px;
+
+    padding: 0 14px;
+
+    border: 1.5px solid #dde2ea;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #f9fafb;
+
+    color: #172033;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group input::placeholder {
+    color: #9aa4b2;
+}
+
+.form-group input:hover:not(:disabled):not(:focus),
+.form-group select:hover:not(:disabled):not(:focus) {
+    border-color: #c3cad6;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    background: #ffffff;
+
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background: #f0f1f4;
+
+    color: #98a2b3;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.modal-footer {
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 16px 24px;
+
+    background: #f9fafb;
+
+    border-top: 1px solid #eef0f3;
+}
+
+
+/* =========================================================
+   CANCEL BUTTON
+========================================================= */
+
+.cancel-user-btn {
+    height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 20px;
+    margin: 0;
+
+    border: 1.5px solid #d6dce5;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #475467;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.cancel-user-btn:hover:not(:disabled) {
+    background: #f2f4f7;
+
+    border-color: #c3cad6;
+
+    color: #172033;
+}
+
+.cancel-user-btn:active:not(:disabled) {
+    background: #e9ebef;
+}
+
+.cancel-user-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.20);
+
+    outline-offset: 2px;
+}
+
+.cancel-user-btn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SAVE USER BUTTON
+========================================================= */
+
+.save-user-btn {
+    min-width: 150px;
+    height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 18px;
+
+    border: 1px solid #4f46e5;
+
+    border-radius: 9px;
+
+    background: #4f46e5;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.save-user-btn:hover:not(:disabled) {
+    background: #4338ca;
+
+    border-color: #4338ca;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(79, 70, 229, 0.28);
+}
+
+.save-user-btn:active:not(:disabled) {
+    transform: translateY(0);
+
+    box-shadow:
+        0 3px 8px rgba(79, 70, 229, 0.2);
+}
+
+.save-user-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.25);
+
+    outline-offset: 2px;
+}
+
+.save-user-btn:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+
+/* =========================================================
+   DELETE CONFIRM TOAST
+========================================================= */
+
+.delete-confirm-toast {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.delete-confirm-message {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.delete-confirm-message strong {
+    font-size: 14px;
+
+    color: #172033;
+}
+
+.delete-confirm-message span {
+    font-size: 12px;
+
+    line-height: 1.5;
+
+    color: #667085;
+}
+
+
+/* =========================================================
+   DELETE CONFIRM ACTIONS
+========================================================= */
+
+.delete-confirm-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+
+/* =========================================================
+   TOAST BUTTONS
+========================================================= */
+
+.toast-cancel-btn,
+.toast-delete-btn {
+    min-width: 72px;
+    height: 34px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 12px;
+    margin: 0;
+
+    border-radius: 6px;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+
+/* =========================================================
+   TOAST CANCEL
+========================================================= */
+
+.toast-cancel-btn {
+    border: 1px solid #d6dce5;
+
+    background: #ffffff;
+
+    color: #344054;
+}
+
+.toast-cancel-btn:hover {
+    background: #f2f4f7;
+
+    border-color: #cbd2dc;
+}
+
+.toast-cancel-btn:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.20);
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   TOAST DELETE
+========================================================= */
+
+.toast-delete-btn {
+    border: 1px solid #dc2626;
+
+    background: #dc2626;
+
+    color: #ffffff;
+}
+
+.toast-delete-btn:hover {
+    background: #b91c1c;
+
+    border-color: #b91c1c;
+}
+
+.toast-delete-btn:focus-visible {
+    outline: 2px solid rgba(220, 38, 38, 0.25);
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   TOASTIFY
+========================================================= */
+
+.Toastify__toast {
+    position: relative;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    padding: 14px 40px 14px 16px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+.Toastify__toast-body {
+    width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+
+/* =========================================================
+   TOASTIFY CLOSE BUTTON
+   (explicit fallback positioning — keeps the "x" pinned
+   top-right instead of floating/stacking above the toast
+   if the base react-toastify CSS isn't loaded/ordered right)
+========================================================= */
+
+.Toastify__close-button {
+    position: absolute !important;
+
+    top: 10px !important;
+    right: 10px !important;
+
+    width: 18px !important;
+    height: 18px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 5px !important;
+
+    background: transparent !important;
+
+    color: currentColor !important;
+
+    opacity: 0.6 !important;
+
+    cursor: pointer !important;
+
+    align-self: auto !important;
+}
+
+.Toastify__close-button:hover {
+    opacity: 1 !important;
+
+    background: rgba(0, 0, 0, 0.06) !important;
+}
+
+.Toastify__close-button>svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+.Toastify__progress-bar {
+    position: absolute !important;
+
+    left: 0 !important;
+    bottom: 0 !important;
+
+    height: 3px !important;
+}
+
+
+/* =========================================================
+   TABLE SCROLLBAR
+========================================================= */
+
+.users-card::-webkit-scrollbar {
+    height: 7px;
+}
+
+.users-card::-webkit-scrollbar-track {
+    background: #f1f3f6;
+}
+
+.users-card::-webkit-scrollbar-thumb {
+    background: #cbd2dc;
+
+    border-radius: 10px;
+}
+
+.users-card::-webkit-scrollbar-thumb:hover {
+    background: #aeb7c4;
+}
+
+
+/* =========================================================
+   MODAL BODY SCROLLBAR
+========================================================= */
+
+.user-form-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-form-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.user-form-body::-webkit-scrollbar-thumb {
+    background: #d0d5dd;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .manage-users {
+        padding: 24px;
+    }
+
+    .users-toolbar {
+        align-items: flex-end;
+    }
+
+    .user-search {
+        width: 100%;
+
+        flex: 1 1 300px;
+    }
+
+    .filter-group {
+        flex: 1 1 150px;
+    }
+
+    .filter-select,
+    .normal-filter-select {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .manage-users {
+        padding: 18px 14px;
+    }
+
+
+    /* ================= HEADER ================= */
+
+    .manage-users-header {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 14px;
+
+        margin-bottom: 18px;
+    }
+
+    .manage-users-header h1 {
+        font-size: 23px;
+    }
+
+    .manage-users-header p {
+        font-size: 13px;
+    }
+
+    .add-user-btn {
+        width: 100%;
+
+        min-width: 0;
+
+        height: 44px;
+    }
+
+
+    /* ================= TOOLBAR ================= */
+
+    .users-toolbar {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 13px;
+
+        padding: 15px;
+    }
+
+    .user-search {
+        width: 100%;
+
+        min-width: 0;
+
+        flex: none;
+    }
+
+    .filter-group {
+        width: 100%;
+
+        flex: none;
+    }
+
+    .filter-select,
+    .normal-filter-select {
+        width: 100%;
+    }
+
+
+    /* ================= COUNT ================= */
+
+    .users-count {
+        margin-top: 3px;
+
+        margin-bottom: 10px;
+    }
+
+
+    /* ================= TABLE ================= */
+
+    .users-card {
+        border-radius: 9px;
+    }
+
+    .users-card table {
+        min-width: 900px;
+    }
+
+
+    /* ================= PAGINATION ================= */
+
+    .pagination {
+        gap: 10px;
+
+        justify-content: space-between;
+    }
+
+    .pagination button {
+        min-width: 85px;
+
+        height: 38px;
+    }
+
+    .pagination span {
+        min-width: auto;
+
+        font-size: 12px;
+    }
+
+
+    /* ================= MODAL ================= */
+
+    .modal-overlay {
+        padding: 12px;
+
+        align-items: flex-end;
+    }
+
+    .user-modal {
+        max-height: 92vh;
+
+        border-radius: 16px 16px 0 0;
+    }
+
+    .modal-header {
+        padding: 18px 18px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    .user-form-body {
+        padding: 18px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+
+        gap: 14px;
+    }
+
+    .modal-footer {
+        padding: 14px 18px;
+
+        flex-direction: column-reverse;
+    }
+
+    .cancel-user-btn,
+    .save-user-btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .manage-users {
+        padding: 14px 10px;
+    }
+
+    .manage-users-header h1 {
+        font-size: 21px;
+    }
+
+    .users-toolbar {
+        padding: 12px;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+    .pagination span {
+        order: -1;
+
+        width: 100%;
+    }
+
+    .pagination button {
+        min-width: 82px;
+    }
+
+    .user-form-body {
+        padding: 14px;
+    }
+
+    .delete-confirm-actions {
+        gap: 6px;
+    }
+
+    .toast-cancel-btn,
+    .toast-delete-btn {
+        min-width: 68px;
+    }
+}
+
+
+/* =========================================================
+   HIGH-SPECIFICITY OVERRIDES
+   (Force-wins against global/layout button styles that
+   were overriding this page's buttons — e.g. admin-panel
+   or dashboard-shell CSS that targets "button" generically)
+========================================================= */
+
+.manage-users button.add-user-btn {
+    width: auto !important;
+    min-width: 125px !important;
+    height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 18px !important;
+    margin: 0 !important;
+    border: 1px solid #4f46e5 !important;
+    border-radius: 8px !important;
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.18) !important;
+}
+
+.manage-users button.add-user-btn:hover:not(:disabled) {
+    background: #4338ca !important;
+    border-color: #4338ca !important;
+    color: #ffffff !important;
+}
+
+.manage-users button.add-user-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+    color: #ffffff !important;
+    fill: #ffffff !important;
+}
+
+.manage-users button.save-user-btn {
+    min-width: 150px !important;
+    height: 44px !important;
+    padding: 0 18px !important;
+    border: 1px solid #4f46e5 !important;
+    border-radius: 9px !important;
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.manage-users button.save-user-btn:hover:not(:disabled) {
+    background: #4338ca !important;
+    border-color: #4338ca !important;
+}
+
+.manage-users button.cancel-user-btn {
+    height: 44px !important;
+    padding: 0 20px !important;
+    border: 1.5px solid #d6dce5 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    color: #475467 !important;
+    font-weight: 600 !important;
+}
+
+.manage-users button.cancel-user-btn:hover:not(:disabled) {
+    background: #f2f4f7 !important;
+    color: #172033 !important;
+}
+
+.manage-users button.three-dot-btn {
+    width: 36px !important;
+    height: 36px !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    color: #667085 !important;
+}
+
+.manage-users button.three-dot-btn:hover:not(:disabled) {
+    background: #f1f3f7 !important;
+}
+
+.manage-users button.modal-close-btn {
+    width: 34px !important;
+    height: 34px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+}
+
+.manage-users .pagination button {
+    min-width: 95px !important;
+    height: 38px !important;
+    padding: 0 15px !important;
+    border: 1px solid #d6dce5 !important;
+    border-radius: 7px !important;
+    background: #ffffff !important;
+    color: #344054 !important;
+    font-weight: 600 !important;
+}
+
+.manage-users .pagination button:hover:not(:disabled) {
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+    color: #ffffff !important;
+}
+
+.manage-users .pagination button:disabled {
+    opacity: 0.5 !important;
+    background: #f8fafc !important;
+    color: #344054 !important;
+}
+
+.manage-users .action-dropdown button.dropdown-edit {
+    color: #2563eb !important;
+    background: transparent !important;
+}
+
+.manage-users .action-dropdown button.dropdown-edit:hover:not(:disabled) {
+    background: #eff6ff !important;
+}
+
+.manage-users .action-dropdown button.dropdown-delete {
+    color: #dc2626 !important;
+    background: transparent !important;
+}
+
+.manage-users .action-dropdown button.dropdown-delete:hover:not(:disabled) {
+    background: #fef2f2 !important;
+}

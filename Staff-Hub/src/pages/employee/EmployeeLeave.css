@@ -1,0 +1,204 @@
+/* =========================================================
+   EMPLOYEE LEAVE PAGE
+========================================================= */
+
+.employee-leave-page {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Header */
+
+.employee-leave-header {
+    margin-bottom: 18px;
+}
+
+.employee-leave-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.employee-leave-header p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Card */
+
+.employee-leave-card {
+    width: 100%;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-sizing: border-box;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+}
+
+/* Card Header */
+
+.employee-leave-card-header {
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.employee-leave-card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.employee-leave-card-header p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Form */
+
+.employee-leave-form {
+    width: 100%;
+}
+
+.employee-leave-form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.employee-leave-form-group label {
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.employee-leave-form-group label span {
+    margin-left: 3px;
+    color: #ef4444;
+}
+
+/* Inputs */
+
+.employee-leave-form-group input,
+.employee-leave-form-group select,
+.employee-leave-form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #fff;
+    color: #1f2937;
+    font-size: 13px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.employee-leave-form-group input,
+.employee-leave-form-group select {
+    height: 42px;
+    padding: 0 11px;
+}
+
+.employee-leave-form-group textarea {
+    min-height: 95px;
+    padding: 10px 11px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.employee-leave-form-group input:focus,
+.employee-leave-form-group select:focus,
+.employee-leave-form-group textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* Date Row */
+
+.employee-leave-date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Actions */
+
+.employee-leave-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 2px;
+}
+
+/* Button */
+
+.employee-leave-submit-btn {
+    min-width: 135px;
+    height: 40px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.employee-leave-submit-btn:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.employee-leave-submit-btn:active {
+    transform: translateY(1px);
+}
+
+.employee-leave-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .employee-leave-page {
+        max-width: 100%;
+    }
+
+    .employee-leave-card {
+        padding: 18px;
+    }
+
+    .employee-leave-date-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .employee-leave-header h2 {
+        font-size: 21px;
+    }
+}
+
+@media (max-width: 480px) {
+    .employee-leave-card {
+        padding: 15px;
+    }
+
+    .employee-leave-form-actions {
+        justify-content: stretch;
+    }
+
+    .employee-leave-submit-btn {
+        width: 100%;
+    }
+}

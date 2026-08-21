@@ -1,0 +1,956 @@
+/* =========================================================
+   ADMIN LEAVE PAGE
+========================================================= */
+
+.admin-leave-page {
+    width: 100%;
+    min-height: 100%;
+    padding: 24px 28px 40px;
+    box-sizing: border-box;
+    background: #f7f8fc;
+    color: #252936;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-leave-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.admin-leave-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #252936;
+    letter-spacing: -0.3px;
+}
+
+.admin-leave-header p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    color: #7b8190;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.admin-leave-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e7e9ef;
+    padding-bottom: 0;
+}
+
+.admin-leave-tabs button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: none;
+    background: transparent;
+
+    padding: 12px 18px;
+    margin-bottom: -1px;
+
+    color: #737988;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    border-bottom: 2px solid transparent;
+}
+
+.admin-leave-tabs button:hover {
+    color: #6558d8;
+    background: #f1efff;
+}
+
+.admin-leave-tabs button.active {
+    color: #6255d8;
+    border-bottom-color: #6255d8;
+    background: #f7f6ff;
+}
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.admin-leave-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e8eaf0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(31, 35, 45, 0.03);
+    overflow: hidden;
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.admin-leave-card-header {
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 18px 22px;
+
+    border-bottom: 1px solid #eceef3;
+}
+
+.admin-leave-card-header h3 {
+    margin: 0;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    color: #292d39;
+}
+
+.admin-leave-card-header p {
+    margin: 5px 0 0;
+
+    font-size: 12px;
+    color: #858a98;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.admin-leave-search {
+    width: 245px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 12px;
+
+    border: 1px solid #dfe2e9;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #8b909d;
+
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.admin-leave-search:focus-within {
+    border-color: #7568df;
+    box-shadow: 0 0 0 3px rgba(117, 104, 223, 0.08);
+}
+
+.admin-leave-search input {
+    width: 100%;
+    height: 100%;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    font-size: 12px;
+    color: #303440;
+}
+
+.admin-leave-search input::placeholder {
+    color: #a0a4ae;
+}
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.admin-leave-table-wrapper,
+.admin-holiday-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Scrollbar */
+
+.admin-leave-table-wrapper::-webkit-scrollbar,
+.admin-holiday-table-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.admin-leave-table-wrapper::-webkit-scrollbar-track,
+.admin-holiday-table-wrapper::-webkit-scrollbar-track {
+    background: #f5f5f7;
+}
+
+.admin-leave-table-wrapper::-webkit-scrollbar-thumb,
+.admin-holiday-table-wrapper::-webkit-scrollbar-thumb {
+    background: #cfd2db;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.admin-leave-table {
+    width: 100%;
+    min-width: 900px;
+
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.admin-leave-table thead {
+    background: #fafbfc;
+}
+
+.admin-leave-table th {
+    padding: 13px 16px;
+
+    text-align: left;
+    white-space: nowrap;
+
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    letter-spacing: 0.35px;
+
+    color: #858a96;
+
+    border-bottom: 1px solid #e9ebf0;
+}
+
+.admin-leave-table td {
+    padding: 14px 16px;
+
+    font-size: 12px;
+    color: #505563;
+
+    border-bottom: 1px solid #f0f1f4;
+
+    vertical-align: middle;
+}
+
+.admin-leave-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.admin-leave-table tbody tr:hover {
+    background: #fafaff;
+}
+
+.admin-leave-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================================
+   EMPLOYEE CELL
+========================================================= */
+
+.admin-employee-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 180px;
+}
+
+.admin-employee-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eeeaff;
+    color: #6457d8;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.admin-employee-cell > div:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-employee-cell strong {
+    max-width: 160px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    color: #303440;
+}
+
+.admin-employee-cell span {
+    max-width: 160px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+    color: #9297a4;
+}
+
+/* =========================================================
+   REASON CELL
+========================================================= */
+
+.reason-cell {
+    max-width: 190px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: #6d7280 !important;
+}
+
+/* =========================================================
+   LEAVE STATUS
+========================================================= */
+
+.leave-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 72px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-transform: capitalize;
+}
+
+.leave-status.pending {
+    color: #b57912;
+    background: #fff4d9;
+}
+
+.leave-status.approved {
+    color: #16855a;
+    background: #e3f7ee;
+}
+
+.leave-status.rejected {
+    color: #d34e5d;
+    background: #fde8eb;
+}
+
+/* =========================================================
+   LEAVE ACTION BUTTONS
+========================================================= */
+
+.leave-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.leave-approve-btn,
+.leave-reject-btn {
+    width: 30px;
+    height: 30px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.leave-approve-btn {
+    border: 1px solid #ccebdc;
+    background: #effaf5;
+    color: #20a06b;
+}
+
+.leave-approve-btn:hover {
+    background: #dff6eb;
+    border-color: #a9dfc7;
+    transform: translateY(-1px);
+}
+
+.leave-reject-btn {
+    border: 1px solid #f2d0d5;
+    background: #fff3f4;
+    color: #dc5966;
+}
+
+.leave-reject-btn:hover {
+    background: #fde5e8;
+    border-color: #edb7bf;
+    transform: translateY(-1px);
+}
+
+.leave-action-done {
+    color: #a2a6b0;
+    font-size: 16px;
+}
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.admin-leave-empty {
+    height: 150px;
+
+    text-align: center !important;
+    vertical-align: middle !important;
+
+    color: #9499a6 !important;
+    font-size: 13px !important;
+}
+
+/* =========================================================
+   ADD HOLIDAY BUTTON
+========================================================= */
+
+.add-holiday-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    height: 36px;
+
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #6759d9;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow: 0 3px 8px rgba(103, 89, 217, 0.16);
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+.add-holiday-btn:hover {
+    background: #584acb;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(103, 89, 217, 0.22);
+}
+
+.add-holiday-btn:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   HOLIDAY NAME
+========================================================= */
+
+.holiday-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 180px;
+}
+
+.holiday-icon {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    background: #f0edff;
+    color: #6759d9;
+}
+
+.holiday-name strong {
+    font-size: 12px;
+    font-weight: 650;
+    color: #303440;
+}
+
+/* =========================================================
+   HOLIDAY ACTION BUTTONS
+========================================================= */
+
+.holiday-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.holiday-edit-btn,
+.holiday-delete-btn {
+    width: 30px;
+    height: 30px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.holiday-edit-btn {
+    border: 1px solid #ddd9fb;
+    background: #f7f5ff;
+    color: #685ad8;
+}
+
+.holiday-edit-btn:hover {
+    background: #ece9ff;
+    border-color: #c9c2f5;
+    transform: translateY(-1px);
+}
+
+.holiday-delete-btn {
+    border: 1px solid #f1d1d5;
+    background: #fff5f6;
+    color: #d95a67;
+}
+
+.holiday-delete-btn:hover {
+    background: #fde8eb;
+    border-color: #eab7bd;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.admin-leave-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(25, 28, 38, 0.45);
+
+    backdrop-filter: blur(2px);
+
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.admin-leave-modal {
+    width: 100%;
+    max-width: 500px;
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 20px 60px rgba(20, 24, 35, 0.2);
+
+    animation: leaveModalIn 0.2s ease;
+}
+
+@keyframes leaveModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.admin-leave-modal::-webkit-scrollbar {
+    width: 5px;
+}
+
+.admin-leave-modal::-webkit-scrollbar-thumb {
+    background: #d3d5dc;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.admin-leave-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #eceef2;
+}
+
+.admin-leave-modal-header h3 {
+    margin: 0;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    color: #292d38;
+}
+
+.admin-leave-modal-header p {
+    margin: 5px 0 0;
+
+    font-size: 11px;
+    color: #8c919d;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.modal-close-btn {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    margin: 0;
+
+    border: 1px solid #e2e4e9;
+    border-radius: 7px;
+
+    background: #ffffff;
+    color: #777c88;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: #f5f5f7;
+    color: #343844;
+    border-color: #d5d7dd;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.admin-leave-modal form {
+    padding: 20px 22px 22px;
+}
+
+.admin-leave-form-group {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 16px;
+}
+
+.admin-leave-form-group:last-of-type {
+    margin-bottom: 20px;
+}
+
+.admin-leave-form-group label {
+    margin-bottom: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #40444f;
+}
+
+.admin-leave-form-group label span {
+    margin-left: 3px;
+    color: #e05260;
+}
+
+.admin-leave-form-group input,
+.admin-leave-form-group textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #dfe2e8;
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #303440;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.admin-leave-form-group input {
+    height: 40px;
+    padding: 0 12px;
+}
+
+.admin-leave-form-group textarea {
+    min-height: 82px;
+
+    padding: 10px 12px;
+
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.admin-leave-form-group input::placeholder,
+.admin-leave-form-group textarea::placeholder {
+    color: #a0a4ad;
+}
+
+.admin-leave-form-group input:focus,
+.admin-leave-form-group textarea:focus {
+    border-color: #7164dc;
+
+    box-shadow:
+        0 0 0 3px rgba(113, 100, 220, 0.08);
+}
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.admin-leave-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    padding-top: 4px;
+}
+
+.cancel-holiday-btn,
+.save-holiday-btn {
+    height: 38px;
+
+    padding: 0 16px;
+
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.cancel-holiday-btn {
+    border: 1px solid #dfe2e8;
+    background: #ffffff;
+    color: #666b77;
+}
+
+.cancel-holiday-btn:hover {
+    background: #f7f7f8;
+    border-color: #d3d5dc;
+}
+
+.save-holiday-btn {
+    border: 1px solid #6759d9;
+    background: #6759d9;
+    color: #ffffff;
+
+    min-width: 115px;
+}
+
+.save-holiday-btn:hover:not(:disabled) {
+    background: #584acb;
+    border-color: #584acb;
+}
+
+.save-holiday-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .admin-leave-page {
+        padding: 20px;
+    }
+
+    .admin-leave-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-leave-search {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .admin-leave-page {
+        padding: 16px;
+    }
+
+    .admin-leave-header h2 {
+        font-size: 20px;
+    }
+
+    .admin-leave-tabs {
+        overflow-x: auto;
+    }
+
+    .admin-leave-tabs button {
+        white-space: nowrap;
+        padding: 11px 14px;
+    }
+
+    .admin-leave-card-header {
+        padding: 16px;
+    }
+
+    .admin-leave-table th,
+    .admin-leave-table td {
+        padding: 12px;
+    }
+
+    .admin-leave-modal-overlay {
+        padding: 12px;
+    }
+
+    .admin-leave-modal {
+        max-height: calc(100vh - 24px);
+    }
+
+    .admin-leave-modal-header {
+        padding: 16px;
+    }
+
+    .admin-leave-modal form {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .admin-leave-page {
+        padding: 12px;
+    }
+
+    .admin-leave-header {
+        margin-bottom: 16px;
+    }
+
+    .admin-leave-header h2 {
+        font-size: 18px;
+    }
+
+    .admin-leave-header p {
+        font-size: 11px;
+    }
+
+    .admin-leave-card-header {
+        gap: 14px;
+    }
+
+    .admin-leave-search {
+        max-width: none;
+    }
+
+    .add-holiday-btn {
+        width: 100%;
+    }
+
+    .admin-leave-modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .cancel-holiday-btn,
+    .save-holiday-btn {
+        width: 100%;
+    }
+}

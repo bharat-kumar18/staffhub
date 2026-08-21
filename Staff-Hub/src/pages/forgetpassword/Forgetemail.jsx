@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import "./Forgetemail.css";
 import { Link, useNavigate } from "react-router-dom";
 import { forgetPassword } from "../../Services/api";
+import { ToastContainer ,toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Forgetemail = () => {
   const [email, setEmail] = useState("");

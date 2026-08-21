@@ -1,0 +1,994 @@
+/* =====================================================
+   MAIN
+===================================================== */
+
+.manage-employees {
+    width: 100%;
+    min-height: 100%;
+    padding: 25px;
+    background-color: #f3f6f0;
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.manage-employees-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.manage-employees-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.manage-employees-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   ADD EMPLOYEE BUTTON
+===================================================== */
+
+.employee-add-btn {
+    border: none;
+    outline: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: 12px 20px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+    width: 160px;
+
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+}
+
+.employee-add-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.employee-add-btn:active {
+    transform: translateY(0);
+}
+
+.employee-add-btn svg {
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.employee-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.employee-search {
+    width: 350px;
+
+    display: flex;
+    align-items: center;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    padding: 0 14px;
+
+    transition: 0.2s ease;
+}
+
+.employee-search:focus-within {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.employee-search svg {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.employee-search input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    padding: 12px 10px;
+
+    background: transparent;
+
+    color: #0f172a;
+
+    font-size: 14px;
+}
+
+.employee-search input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =====================================================
+   TOTAL
+===================================================== */
+
+.employee-total {
+    color: #64748b;
+
+    font-size: 14px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.employee-total strong {
+    color: #0f172a;
+    font-size: 15px;
+}
+
+
+/* =====================================================
+   TABLE CARD
+===================================================== */
+
+.employees-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: visible;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+/* =====================================================
+   TABLE WRAPPER
+===================================================== */
+.employees-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.employees-table-wrapper table {
+    width: 100%;
+
+    min-width: 1000px;
+
+    border-collapse: collapse;
+}
+
+
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.employees-table-wrapper thead {
+    background: #f8fafc;
+}
+
+.employees-table-wrapper th {
+    padding: 15px 16px;
+
+    text-align: left;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   TABLE BODY
+===================================================== */
+
+.employees-table-wrapper td {
+    padding: 15px 16px;
+
+    color: #334155;
+
+    font-size: 14px;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    vertical-align: middle;
+}
+
+.employees-table-wrapper tbody tr {
+    transition: background 0.2s ease;
+}
+
+.employees-table-wrapper tbody tr:hover {
+    background: #f8fafc;
+}
+
+.employees-table-wrapper tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =====================================================
+   EMPLOYEE NAME
+===================================================== */
+
+.employee-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-weight: 600;
+
+    color: #0f172a;
+
+    white-space: nowrap;
+}
+
+.employee-avatar {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   ADDRESS
+===================================================== */
+
+.employee-address {
+    max-width: 230px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+/* =====================================================
+   ACTION
+===================================================== */
+
+.employee-action-header {
+    text-align: center !important;
+}
+
+.employee-action-cell {
+    position: relative;
+
+    width: 80px;
+
+    text-align: center;
+}
+
+.employee-action-menu {
+    position: relative;
+
+    display: inline-flex;
+
+    justify-content: center;
+}
+
+
+/* =====================================================
+   THREE DOT BUTTON
+===================================================== */
+
+.employee-three-dot {
+    background: #ffffff;
+
+    color: #0e0e0f;
+
+    border-radius: 7px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+
+    transition: all 0.2s ease;
+}
+
+.employee-three-dot>svg {
+    font-weight: 200;
+}
+
+
+
+.employee-three-dot:hover {
+    background: #f1f5f9;
+
+    color: #2563eb;
+
+    border-color: #cbd5e1;
+}
+
+
+/* =====================================================
+   DROPDOWN
+===================================================== */
+
+.employee-dropdown {
+    position: absolute;
+
+    right: 0;
+
+    top: 42px;
+
+    width: 145px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    padding: 5px;
+
+    z-index: 50;
+
+    box-shadow:
+        0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+.employee-dropdown button {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 9px 10px;
+
+    border: none;
+
+    background: transparent;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    text-align: left;
+}
+
+.employee-dropdown-view {
+    color: #059669;
+}
+
+.employee-dropdown-view:hover {
+    background: #ecfdf5;
+}
+
+.employee-dropdown-edit {
+    color: #2563eb;
+}
+
+.employee-dropdown-edit:hover {
+    background: #eff6ff;
+}
+
+.employee-dropdown-delete {
+    color: #dc2626;
+}
+
+.employee-dropdown-delete:hover {
+    background: #fef2f2;
+}
+
+
+/* =====================================================
+   TABLE MESSAGE
+===================================================== */
+
+.employee-table-message {
+    text-align: center !important;
+
+    padding: 45px 20px !important;
+
+    color: #94a3b8 !important;
+
+    font-size: 14px !important;
+}
+
+
+/* =====================================================
+   MODAL OVERLAY
+===================================================== */
+
+.employee-modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.55);
+
+    backdrop-filter: blur(3px);
+  
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.employee-modal {
+    width: 100%;
+
+    max-width: 650px;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 14px;
+    
+
+    box-shadow:
+        0 25px 60px rgba(15, 23, 42, 0.25);
+
+    animation: employeeModalOpen 0.2s ease;
+}
+
+@keyframes employeeModalOpen {
+
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.employee-modal-header {
+    display: flex;
+    
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 22px 24px;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.employee-modal-header h2 {
+    margin: 0;
+
+    color: #f5f7f9;
+
+    font-size: 21px;
+
+    font-weight: 700;
+}
+
+.employee-modal-header p {
+    margin: 5px 0 0;
+
+    color: #f5f7f9;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   CLOSE BUTTON
+===================================================== */
+
+.employee-modal-close {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #f8f9fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.employee-form {
+    padding: 24px;
+}
+
+.employee-form-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 18px;
+}
+
+
+/* =====================================================
+   FORM GROUP
+===================================================== */
+
+.employee-form-group {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+.employee-form-group label {
+    color: #334155;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.employee-form-group input,
+.employee-form-group textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    padding: 11px 12px;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    transition: all 0.2s ease;
+}
+
+.employee-form-group input {
+    height: 44px;
+}
+
+.employee-form-group textarea {
+    resize: vertical;
+
+    min-height: 90px;
+}
+
+.employee-form-group input:focus,
+.employee-form-group textarea:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.employee-form-group input::placeholder,
+.employee-form-group textarea::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =====================================================
+   FULL WIDTH
+===================================================== */
+
+.employee-full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* =====================================================
+   FORM ACTIONS
+===================================================== */
+
+.employee-form-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+}
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+.employee-form-save {
+    padding: 11px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+    margin-right: 210px;
+    width: 160px;
+
+    box-shadow:
+        0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.employee-form-save:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   DELETE TOAST
+===================================================== */
+
+.employee-delete-toast {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.employee-delete-toast strong {
+    color: #0f172a;
+
+    font-size: 14px;
+}
+
+.employee-delete-toast span {
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+.employee-delete-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    margin-top: 8px;
+}
+
+.employee-cancel-btn,
+.employee-delete-btn {
+    padding: 7px 12px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.employee-cancel-btn {
+    border: 1px solid #cbd5e1;
+
+    background: #ffffff;
+
+    color: #475569;
+}
+
+.employee-delete-btn {
+    border: none;
+
+    background: #dc2626;
+
+    color: #ffffff;
+}
+
+.employee-delete-btn:hover {
+    background: #b91c1c;
+}
+
+
+/* =====================================================
+   VIEW MODAL (NEW - was missing, isliye details sahi
+   se dikh nahi rahi thi)
+===================================================== */
+
+.employee-view-modal {
+    max-width: 560px;
+}
+
+.employee-view-loading {
+    padding: 45px 24px;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+}
+
+.employee-view-content {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 16px;
+
+    padding: 24px;
+}
+
+.employee-view-item {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    background: #f8fafc;
+
+    border: 1px solid #eef2f7;
+
+    border-radius: 10px;
+
+    padding: 12px 14px;
+
+    min-width: 0;
+}
+
+.employee-view-item span {
+    color: #94a3b8;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.3px;
+}
+
+.employee-view-item strong {
+    color: #0f172a;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    word-break: break-word;
+
+    overflow-wrap: anywhere;
+}
+
+.employee-view-full {
+    grid-column: 1 / -1;
+}
+
+.employee-view-actions {
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 6px;
+
+    padding-top: 16px;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .manage-employees {
+        padding: 20px;
+    }
+
+    .manage-employees-header {
+        align-items: flex-start;
+    }
+
+    .employee-toolbar {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .employee-search {
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+    .employee-total {
+        justify-content: flex-end;
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .manage-employees {
+        padding: 15px;
+    }
+
+    .manage-employees-header {
+        flex-direction: column;
+    }
+
+    .employee-add-btn {
+        width: 100%;
+    }
+
+    .employee-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-full-width {
+        grid-column: auto;
+    }
+
+    .employee-modal {
+        max-height: 95vh;
+    }
+
+    .employee-modal-header {
+        padding: 18px;
+    }
+
+    .employee-form {
+        padding: 18px;
+    }
+
+    .employee-view-content {
+        grid-template-columns: 1fr;
+
+        padding: 18px;
+    }
+
+}
+
+.manage-employees {
+    width: 100%;
+    min-height: 100%;
+    padding: 25px;
+    background-color: #f3f6f0;
+    box-sizing: border-box;
+    overflow-y: visible;
+}
+
+.employee-company-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.employee-form-group input[readonly] {
+    background: #f8fafc;
+    color: #475569;
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+}
+
+.employee-form-group input[readonly]:focus {
+    border-color: #cbd5e1;
+    box-shadow: none;
+    outline: none;
+}

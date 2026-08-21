@@ -5,6 +5,8 @@ import "./Otpverify.css";
 import { verifyOTP, forgetPassword } from "../../Services/api";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { ToastContainer ,toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Otpverify = () => {
   const [otp, setOtp] = useState("");
@@ -43,7 +45,7 @@ const Otpverify = () => {
 
       localStorage.setItem("resetToken", newResetToken);
       const successMessage = response?.data?.message || response?.data?.msg || "OTP verified successfully.";
-      alert(successMessage);
+      toast.success(successMessage);
       navigate("/resetpassword");
     }
     catch (error) {
@@ -61,7 +63,7 @@ const Otpverify = () => {
       const response = await forgetPassword({
         email: email,
       })
-      alert(response.data.message);
+      toast.success(response.data.message);
     }
     catch (error) {
       setError(

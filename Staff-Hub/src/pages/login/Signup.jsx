@@ -10,6 +10,8 @@ import {
 } from "react-icons/fa";
 import { assets } from "../../assets/assets";
 import { SignupUser } from "../../Services/api";
+import { ToastContainer ,toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const Signup = () => {
@@ -29,17 +31,17 @@ const Signup = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if (name.trim() === "") {
-      alert("Enter Full Name");
+      toast.success("Enter Full Name");
       return;
     }
 
     if (!emailRegex.test(email)) {
-      alert("Invalid Email");
+      toast.error("Invalid Email");
       return;
     }
 
     if (!passwordRegex.test(password)) {
-      alert(
+      toast.error(
         "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character."
       );
       return;
@@ -55,14 +57,14 @@ const Signup = () => {
       const response = await SignupUser(data);
       console.log(response.data);
 
-      alert("Signup Successful");
+      toast.success("Signup Successful");
       navigate("/login");
 
 
     }
     catch (error) {
       console.log(error);
-      alert("Signup Failed");
+      toast.error("Signup Failed");
 
     }
 
