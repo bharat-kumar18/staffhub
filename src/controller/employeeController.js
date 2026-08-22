@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const { sendWelcomeEmail, sendOTPEmail, sendEmployeeWelcomeEmail } = require("../utils/sendMail");
 
 // Add Employees API
-
 // const pool = require("../config/db");
 // const bcrypt = require("bcrypt");
 // =====================================================

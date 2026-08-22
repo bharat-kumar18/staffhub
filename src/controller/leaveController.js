@@ -351,6 +351,196 @@ exports.applyLeave = async (req, res) => {
 };
 
 // =====================================================
+// GET ALL LEAVE REQUESTS FOR ADMIN
+// =====================================================
+
+exports.getAdminLeaveRequests = async (req, res) => {
+
+    try {
+
+        // -----------------------------------------
+        // 1. Get Admin ID from JWT
+        // -----------------------------------------
+
+        const adminId = req.user.id;
+
+
+        // -----------------------------------------
+        // 2. Check logged-in Admin
+        // -----------------------------------------
+
+        const adminResult = await pool.query(
+            `
+            SELECT
+                id,
+                name,
+                email,
+                company_name,
+                role_id,
+                is_active
+
+            FROM users
+
+            WHERE id = $1
+
+            AND role_id = 2
+
+            AND is_active = TRUE
+            `,
+            [adminId]
+        );
+
+
+        if (adminResult.rows.length === 0) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "Admin not found or inactive"
+
+            });
+
+        }
+
+
+        // -----------------------------------------
+        // 3. Get all leave requests
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                l.id AS leave_id,
+
+                l.employee_id,
+
+                e.name AS employee_name,
+
+                e.email AS employee_email,
+
+                e.department,
+
+                e.designation,
+
+                e.phone,
+
+                l.leave_type,
+
+                l.from_date,
+
+                l.to_date,
+
+                l.reason,
+
+                l.status,
+
+                l.rejection_reason,
+
+                l.created_at,
+
+                l.updated_at
+
+            FROM leaves l
+
+            JOIN employees e
+                ON l.employee_id = e.id
+
+            WHERE l.admin_id = $1
+
+            AND e.admin_id = $1
+
+            ORDER BY
+                l.created_at DESC
+            `,
+            [adminId]
+        );
+
+
+        // -----------------------------------------
+        // 4. Count leave requests
+        // -----------------------------------------
+
+        const totalRequests =
+            result.rows.length;
+
+
+        const pendingRequests =
+            result.rows.filter(
+                leave => leave.status === "pending"
+            ).length;
+
+
+        const approvedRequests =
+            result.rows.filter(
+                leave => leave.status === "approved"
+            ).length;
+
+
+        const rejectedRequests =
+            result.rows.filter(
+                leave => leave.status === "rejected"
+            ).length;
+
+
+        // -----------------------------------------
+        // 5. Response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Leave requests fetched successfully",
+
+            summary: {
+
+                total_requests:
+                    totalRequests,
+
+                pending:
+                    pendingRequests,
+
+                approved:
+                    approvedRequests,
+
+                rejected:
+                    rejectedRequests
+
+            },
+
+            leaves:
+                result.rows
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Get Admin Leave Requests Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+
+// =====================================================
 // ADMIN APPROVE / REJECT LEAVE
 // =====================================================
 
