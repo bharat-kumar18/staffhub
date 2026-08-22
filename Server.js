@@ -6,6 +6,7 @@ require('dotenv').config();
 
 // const authRoutes = require("./src/routes/auth.routes");
 
+const path = require("path");
 
 app.use(express.json());
 app.use(cors())
@@ -39,6 +40,15 @@ app.use("/api", attendanceRoutes);
 // Leave 
 const leaveRoutes =require("./src/routes/leave.routes");
 app.use("/api", leaveRoutes);
+
+// Profile route
+const profileRoutes = require("./src/routes/profile.routes");
+app.use( "/api", profileRoutes);
+
+
+
+app.use( "/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 
 
