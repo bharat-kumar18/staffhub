@@ -11,6 +11,7 @@ const {
 
 const {
     applyLeave,
+    getAdminLeaveRequests,
     decideLeave,
     addHoliday,
     getHolidays,
@@ -23,6 +24,10 @@ const {
 // =====================================================
 
 router.post("/leave/apply", authMiddleware, applyLeave );
+
+// Get apply leave table
+
+router.get("/admin/leaves", authMiddleware, Admin, getAdminLeaveRequests );
 
 // =====================================================
 // Admin Approve / Reject Leave
