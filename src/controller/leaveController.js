@@ -351,6 +351,298 @@ exports.applyLeave = async (req, res) => {
 };
 
 // =====================================================
+// GET MY LEAVES - EMPLOYEE
+// =====================================================
+
+exports.getMyLeaves = async (req, res) => {
+
+    try {
+
+        // -----------------------------------------
+        // 1. Get Employee ID from JWT
+        // -----------------------------------------
+
+        const employeeId = req.user.id;
+
+
+        // -----------------------------------------
+        // 2. Check Employee
+        // -----------------------------------------
+
+        const employeeResult = await pool.query(
+            `
+            SELECT
+                e.id,
+                e.name,
+                e.email,
+                e.admin_id,
+                e.is_active,
+
+                u.company_name,
+                u.name AS admin_name
+
+            FROM employees e
+
+            JOIN users u
+                ON e.admin_id = u.id
+
+            WHERE e.id = $1
+
+            AND e.is_active = TRUE
+
+            AND u.is_active = TRUE
+            `,
+            [
+                employeeId
+            ]
+        );
+
+
+        if (employeeResult.rows.length === 0) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "Employee not found or inactive"
+
+            });
+
+        }
+
+
+        const employee =
+            employeeResult.rows[0];
+
+
+        // -----------------------------------------
+        // 3. Get Employee Leaves
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                l.id AS leave_id,
+
+                l.employee_id,
+
+                l.admin_id,
+
+                l.leave_type,
+
+                l.from_date,
+
+                l.to_date,
+
+                (
+                    l.to_date - l.from_date + 1
+                ) AS duration_days,
+
+                l.reason,
+
+                l.status,
+
+                l.rejection_reason,
+
+                l.created_at,
+
+                l.updated_at
+
+            FROM leaves l
+
+            WHERE l.employee_id = $1
+
+            AND l.admin_id = $2
+
+            ORDER BY
+                l.created_at DESC
+            `,
+            [
+                employeeId,
+                employee.admin_id
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 4. Prepare response data
+        // -----------------------------------------
+
+        const leaves = result.rows.map(leave => {
+
+            let adminResponse = "";
+
+            if (leave.status === "pending") {
+
+                adminResponse =
+                    "Waiting for admin response";
+
+            }
+
+            else if (leave.status === "approved") {
+
+                adminResponse =
+                    "Approved by Admin";
+
+            }
+
+            else if (leave.status === "rejected") {
+
+                adminResponse =
+                    leave.rejection_reason
+                        ? `Rejected: ${leave.rejection_reason}`
+                        : "Rejected by Admin";
+
+            }
+
+
+            return {
+
+                leave_id:
+                    leave.leave_id,
+
+                leave_type:
+                    leave.leave_type,
+
+                duration: {
+
+                    from_date:
+                        leave.from_date,
+
+                    to_date:
+                        leave.to_date,
+
+                    total_days:
+                        Number(leave.duration_days)
+
+                },
+
+                reason:
+                    leave.reason,
+
+                date:
+                    leave.created_at,
+
+                status:
+                    leave.status,
+
+                admin_response:
+                    adminResponse,
+
+                rejection_reason:
+                    leave.rejection_reason || null,
+
+                updated_at:
+                    leave.updated_at
+
+            };
+
+        });
+
+
+        // -----------------------------------------
+        // 5. Summary
+        // -----------------------------------------
+
+        const totalLeaves =
+            leaves.length;
+
+
+        const pendingLeaves =
+            leaves.filter(
+                leave => leave.status === "pending"
+            ).length;
+
+
+        const approvedLeaves =
+            leaves.filter(
+                leave => leave.status === "approved"
+            ).length;
+
+
+        const rejectedLeaves =
+            leaves.filter(
+                leave => leave.status === "rejected"
+            ).length;
+
+
+        // -----------------------------------------
+        // 6. Response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "My leaves fetched successfully",
+
+            employee: {
+
+                employee_id:
+                    employee.id,
+
+                name:
+                    employee.name,
+
+                email:
+                    employee.email,
+
+                company_name:
+                    employee.company_name
+
+            },
+
+            summary: {
+
+                total:
+                    totalLeaves,
+
+                pending:
+                    pendingLeaves,
+
+                approved:
+                    approvedLeaves,
+
+                rejected:
+                    rejectedLeaves
+
+            },
+
+            count:
+                leaves.length,
+
+            leaves:
+                leaves
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Get My Leaves Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+
+// =====================================================
 // GET ALL LEAVE REQUESTS FOR ADMIN
 // =====================================================
 

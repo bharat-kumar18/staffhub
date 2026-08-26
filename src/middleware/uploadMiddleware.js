@@ -9,7 +9,7 @@ const fs = require("fs");
 
 const uploadDir = path.join(
     __dirname,
-    "../../uploads/profile"
+    "../../uploads/employees"
 );
 
 

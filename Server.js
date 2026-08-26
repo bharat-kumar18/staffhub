@@ -15,6 +15,7 @@ app.use(cors())
 const port = 3000
 
 
+
 // Auth
 
 const authRouter = require("./src/routes/auth.routes");
@@ -43,11 +44,11 @@ app.use("/api", leaveRoutes);
 
 // Profile route
 const profileRoutes = require("./src/routes/profile.routes");
-app.use( "/api", profileRoutes);
+app.use("/api", profileRoutes);
 
 
 
-app.use( "/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 
