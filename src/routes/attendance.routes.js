@@ -12,39 +12,25 @@ const {
 const {
     checkIn,
     checkOut,
+    getMyAttendance,
     getAttendance,
     modifyAttendance
 } = require("../controller/attendanceController");
 
 // Employee check-in
-router.post(
-    "/attendance/check-in",
-    authMiddleware,
-    checkIn
-);
+router.post("/attendance/check-in",authMiddleware,checkIn);
 
 // Employee check-out
-router.post(
-    "/attendance/check-out",
-    authMiddleware,
-    checkOut
-);
+router.post("/attendance/check-out",authMiddleware,checkOut);
+
+// EMPLOYEE MY ATTENDANCE
+router.post("/myAttendance",authMiddleware,getMyAttendance);
 
 // Get Attendence
-router.post(
-    "/attendance",
-    authMiddleware,
-    Admin,
-    getAttendance
-);
+router.post("/attendance",authMiddleware,Admin,getAttendance);
 
 // Modify the Attendence
-router.patch(
-    "/attendance/modify",
-    authMiddleware,
-    Admin,
-    modifyAttendance
-);
+router.patch("/attendance/modify",authMiddleware,Admin,modifyAttendance);
 
 
 module.exports = router;

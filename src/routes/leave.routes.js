@@ -11,6 +11,7 @@ const {
 
 const {
     applyLeave,
+    getMyLeaves,
     getAdminLeaveRequests,
     decideLeave,
     addHoliday,
@@ -23,17 +24,22 @@ const {
 // Employee Apply Leave
 // =====================================================
 
-router.post("/leave/apply", authMiddleware, applyLeave );
+router.post("/leave/apply", authMiddleware, applyLeave);
+
+// =====================================================
+// EMPLOYEE GET MY LEAVES
+// =====================================================
+router.get("/myLeaves", authMiddleware, getMyLeaves);
 
 // Get apply leave table
 
-router.get("/admin/leaves", authMiddleware, Admin, getAdminLeaveRequests );
+router.get("/admin/leaves", authMiddleware, Admin, getAdminLeaveRequests);
 
 // =====================================================
 // Admin Approve / Reject Leave
 // =====================================================
 
-router.patch("/leave/decision", authMiddleware, Admin, decideLeave );
+router.patch("/leave/decision", authMiddleware, Admin, decideLeave);
 
 // Add Holiday
 router.post("/holidays", authMiddleware, Admin, addHoliday);

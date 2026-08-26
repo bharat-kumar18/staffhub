@@ -526,6 +526,569 @@ exports.checkOut = async (req, res) => {
 
 
 // =====================================================
+// EMPLOYEE GET MY ATTENDANCE
+// =====================================================
+
+exports.getMyAttendance = async (req, res) => {
+
+    try {
+
+        // -----------------------------------------
+        // 1. Get Employee ID from JWT
+        // -----------------------------------------
+
+        const employeeId = req.user.id;
+
+
+        // -----------------------------------------
+        // 2. Pagination + Date Filters
+        // -----------------------------------------
+
+        let {
+            page = 1,
+            limit = 10,
+            from_date,
+            to_date
+        } = req.query;
+
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+
+
+        // -----------------------------------------
+        // 3. Validate Pagination
+        // -----------------------------------------
+
+        if (isNaN(page) || page < 1) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Page must be a positive number"
+
+            });
+
+        }
+
+
+        if (isNaN(limit) || limit < 1) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Limit must be a positive number"
+
+            });
+
+        }
+
+
+        if (limit > 100) {
+
+            limit = 100;
+
+        }
+
+
+        const offset =
+            (page - 1) * limit;
+
+
+        // -----------------------------------------
+        // 4. Check Employee
+        // -----------------------------------------
+
+        const employeeResult = await pool.query(
+            `
+            SELECT
+                id,
+                admin_id,
+                name,
+                email,
+                is_active
+
+            FROM employees
+
+            WHERE id = $1
+
+            AND is_active = TRUE
+            `,
+            [
+                employeeId
+            ]
+        );
+
+
+        if (employeeResult.rows.length === 0) {
+
+            return res.status(403).json({
+
+                success: false,
+
+                message:
+                    "Employee not found or inactive"
+
+            });
+
+        }
+
+
+        const employee =
+            employeeResult.rows[0];
+
+
+        const adminId =
+            employee.admin_id;
+
+
+        // -----------------------------------------
+        // 5. Date Conditions
+        // -----------------------------------------
+
+        let dateCondition = "";
+
+        const queryParams = [
+            employeeId,
+            adminId
+        ];
+
+
+        if (from_date) {
+
+            queryParams.push(from_date);
+
+            dateCondition +=
+                ` AND a.attendance_date >= $${queryParams.length}`;
+
+        }
+
+
+        if (to_date) {
+
+            queryParams.push(to_date);
+
+            dateCondition +=
+                ` AND a.attendance_date <= $${queryParams.length}`;
+
+        }
+
+
+        // -----------------------------------------
+        // 6. Get Attendance
+        // -----------------------------------------
+
+        const result = await pool.query(
+            `
+            SELECT
+
+                a.id,
+
+                a.attendance_date,
+
+                a.check_in,
+
+                a.check_out,
+
+                a.status,
+
+                a.remarks,
+
+                a.latitude,
+
+                a.longitude,
+
+                a.created_at,
+
+                a.updated_at,
+
+                ot.late_after,
+
+                l.leave_type,
+
+                l.reason AS leave_reason,
+
+                l.status AS leave_status,
+
+                h.holiday_name
+
+
+            FROM attendance a
+
+
+            LEFT JOIN office_timings ot
+                ON ot.admin_id = a.admin_id
+
+                AND ot.is_active = TRUE
+
+
+            LEFT JOIN leaves l
+                ON l.employee_id = a.employee_id
+
+                AND a.attendance_date
+                    BETWEEN l.from_date
+                    AND l.to_date
+
+                AND l.status = 'approved'
+
+
+            LEFT JOIN holidays h
+                ON h.admin_id = a.admin_id
+
+                AND h.holiday_date =
+                    a.attendance_date
+
+
+            WHERE a.employee_id = $1
+
+            AND a.admin_id = $2
+
+            ${dateCondition}
+
+
+            ORDER BY
+                a.attendance_date DESC
+
+
+            LIMIT $${queryParams.length + 1}
+
+            OFFSET $${queryParams.length + 2}
+            `,
+            [
+                ...queryParams,
+                limit,
+                offset
+            ]
+        );
+
+
+        // -----------------------------------------
+        // 7. Format Attendance Data
+        // -----------------------------------------
+
+        const attendance =
+            result.rows.map(row => {
+
+
+                // -----------------------------
+                // Worked Hours
+                // -----------------------------
+
+                let workedHours = "00:00";
+
+
+                if (
+                    row.check_in &&
+                    row.check_out
+                ) {
+
+                    const checkIn =
+                        new Date(
+                            `1970-01-01T${row.check_in}`
+                        );
+
+                    const checkOut =
+                        new Date(
+                            `1970-01-01T${row.check_out}`
+                        );
+
+
+                    let difference =
+                        checkOut - checkIn;
+
+
+                    if (difference < 0) {
+
+                        difference +=
+                            24 * 60 * 60 * 1000;
+
+                    }
+
+
+                    const hours =
+                        Math.floor(
+                            difference /
+                            (1000 * 60 * 60)
+                        );
+
+
+                    const minutes =
+                        Math.floor(
+                            (
+                                difference %
+                                (1000 * 60 * 60)
+                            ) /
+                            (1000 * 60)
+                        );
+
+
+                    workedHours =
+                        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+                }
+
+
+                // -----------------------------
+                // Late Hours
+                // -----------------------------
+
+                let lateHours = "00:00";
+
+
+                if (
+                    row.check_in &&
+                    row.late_after &&
+                    row.check_in > row.late_after
+                ) {
+
+                    const checkIn =
+                        new Date(
+                            `1970-01-01T${row.check_in}`
+                        );
+
+                    const lateAfter =
+                        new Date(
+                            `1970-01-01T${row.late_after}`
+                        );
+
+
+                    const difference =
+                        checkIn - lateAfter;
+
+
+                    const hours =
+                        Math.floor(
+                            difference /
+                            (1000 * 60 * 60)
+                        );
+
+
+                    const minutes =
+                        Math.floor(
+                            (
+                                difference %
+                                (1000 * 60 * 60)
+                            ) /
+                            (1000 * 60)
+                        );
+
+
+                    lateHours =
+                        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+                }
+
+
+                // -----------------------------
+                // Status
+                // -----------------------------
+
+                let status =
+                    row.status || "present";
+
+
+                let remarks =
+                    row.remarks || null;
+
+
+                // Approved Leave
+                if (
+                    row.leave_status === "approved"
+                ) {
+
+                    status = "leave";
+
+                    remarks =
+                        row.leave_reason;
+
+                }
+
+
+                // Company Holiday
+                if (
+                    row.holiday_name
+                ) {
+
+                    status = "holiday";
+
+                    remarks =
+                        row.holiday_name;
+
+                }
+
+
+                return {
+
+                    id:
+                        row.id,
+
+                    date:
+                        row.attendance_date,
+
+                    check_in:
+                        row.check_in || null,
+
+                    check_out:
+                        row.check_out || null,
+
+                    worked_hours:
+                        workedHours,
+
+                    late_hours:
+                        lateHours,
+
+                    status:
+                        status,
+
+                    remarks:
+                        remarks
+
+                };
+
+            });
+
+
+        // -----------------------------------------
+        // 8. Count
+        // -----------------------------------------
+
+        const countParams = [
+            employeeId,
+            adminId
+        ];
+
+
+        let countDateCondition = "";
+
+
+        if (from_date) {
+
+            countParams.push(from_date);
+
+            countDateCondition +=
+                ` AND attendance_date >= $${countParams.length}`;
+
+        }
+
+
+        if (to_date) {
+
+            countParams.push(to_date);
+
+            countDateCondition +=
+                ` AND attendance_date <= $${countParams.length}`;
+
+        }
+
+
+        const countResult =
+            await pool.query(
+                `
+                SELECT COUNT(*) AS total
+
+                FROM attendance
+
+                WHERE employee_id = $1
+
+                AND admin_id = $2
+
+                ${countDateCondition}
+                `,
+                countParams
+            );
+
+
+        const totalAttendance =
+            parseInt(
+                countResult.rows[0].total
+            );
+
+
+        const totalPages =
+            Math.ceil(
+                totalAttendance / limit
+            );
+
+
+        // -----------------------------------------
+        // 9. Response
+        // -----------------------------------------
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "My attendance fetched successfully",
+
+            employee: {
+
+                id:
+                    employee.id,
+
+                name:
+                    employee.name,
+
+                email:
+                    employee.email
+
+            },
+
+            pagination: {
+
+                currentPage:
+                    page,
+
+                limit:
+                    limit,
+
+                totalAttendance:
+                    totalAttendance,
+
+                totalPages:
+                    totalPages,
+
+                hasNextPage:
+                    page < totalPages,
+
+                hasPreviousPage:
+                    page > 1
+
+            },
+
+            attendance:
+                attendance
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Get My Attendance Error:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+};
+
+
+// =====================================================
 // ADMIN GET ATTENDANCE
 // =====================================================
 
