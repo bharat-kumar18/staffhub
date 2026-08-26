@@ -31,8 +31,7 @@ body,
   display: flex;
   height: 100vh;
   width: 100%;
-   background: #f3f6f0;
-
+  background:var(--background-color);
   font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont,
     sans-serif;
   color: #23262b;

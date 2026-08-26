@@ -1424,14 +1424,7 @@ const ManageEmployees = () => {
 
                           <div className="employee-name">
 
-                            <div className="employee-avatar">
-
-                              {employee.name
-                                ?.charAt(0)
-                                ?.toUpperCase()}
-
-                            </div>
-
+                            
                             <span>
                               {employee.name ||
                                 "-"}

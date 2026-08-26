@@ -1,0 +1,497 @@
+/* =========================================================
+   HOLIDAYS PAGE
+========================================================= */
+
+.holidays-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #292d36;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.holidays-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.holidays-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.holidays-header p {
+  margin: 6px 0 0;
+  color: #7b8190;
+  font-size: 14px;
+}
+
+/* =========================================================
+   ADD BUTTON
+========================================================= */
+
+.add-holiday-btn {
+  height: 42px;
+  width: 150px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: #635bff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.add-holiday-btn:hover {
+  background: #5148e8;
+  box-shadow: 0 5px 15px rgba(99, 91, 255, 0.2);
+}
+
+.add-holiday-btn:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.holidays-card {
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e8eaf0;
+  border-radius: 12px;
+}
+
+.holidays-card-header {
+  min-height: 72px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #eceef3;
+}
+
+.holidays-card-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.holidays-card-header p {
+  margin: 5px 0 0;
+  color: #8a8f9c;
+  font-size: 13px;
+}
+
+.holiday-count {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #f1f0ff;
+  color: #635bff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.holidays-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.holidays-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+}
+
+.holidays-table th {
+  padding: 14px 20px;
+  background: #fafbfc;
+  border-bottom: 1px solid #e8eaf0;
+  color: #737887;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  white-space: nowrap;
+}
+
+.holidays-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef0f4;
+  color: #3d414b;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.holidays-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.holidays-table tbody tr:hover {
+  background: #fafaff;
+}
+
+.holidays-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* =========================================================
+   HOLIDAY NAME
+========================================================= */
+
+.holiday-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.holiday-name strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.holiday-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #f1f0ff;
+  color: #635bff;
+}
+
+.holiday-description {
+  max-width: 380px;
+  color: #6f7480 !important;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.holiday-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.holiday-edit-btn,
+.holiday-delete-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.holiday-edit-btn {
+  border: 1px solid #dfe2e9;
+  background: #fff;
+  color: #606672;
+}
+
+.holiday-edit-btn:hover {
+  background: #f1f0ff;
+  border-color: #d6d2ff;
+  color: #635bff;
+}
+
+.holiday-delete-btn {
+  border: 1px solid #f0d7d7;
+  background: #fff;
+  color: #e05252;
+}
+
+.holiday-delete-btn:hover {
+  background: #fff1f1;
+  border-color: #efbcbc;
+  color: #d63e3e;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.holiday-empty {
+  height: 180px;
+  text-align: center !important;
+  color: #858b98 !important;
+  font-size: 14px !important;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.holiday-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 24, 35, 0.48);
+  backdrop-filter: blur(2px);
+}
+
+.holiday-modal {
+  width: min(500px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 13px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  animation: holidayModalIn 0.18s ease-out;
+}
+
+@keyframes holidayModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.holiday-modal-header {
+  padding: 20px 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #eceef3;
+}
+
+.holiday-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.holiday-modal-header p {
+  margin: 5px 0 0;
+  color: #858b98;
+  font-size: 13px;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.holiday-modal-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: #f5f6f8;
+  color: #646a76;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.holiday-modal-close:hover {
+  background: #eceef2;
+  color: #252832;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.holiday-form {
+  padding: 22px;
+}
+
+.holiday-form-group {
+  margin-bottom: 18px;
+}
+
+.holiday-form-group label {
+  display: block;
+  margin-bottom: 7px;
+  color: #333741;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.holiday-form-group label span {
+  margin-left: 3px;
+  color: #e05252;
+}
+
+.holiday-form-group input,
+.holiday-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dfe2e8;
+  border-radius: 8px;
+  outline: 0;
+  background: #fff;
+  color: #292d36;
+  font: inherit;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.holiday-form-group input {
+  height: 43px;
+  padding: 0 12px;
+}
+
+.holiday-form-group textarea {
+  min-height: 95px;
+  padding: 11px 12px;
+  resize: vertical;
+}
+
+.holiday-form-group input::placeholder,
+.holiday-form-group textarea::placeholder {
+  color: #a1a6b0;
+}
+
+.holiday-form-group input:focus,
+.holiday-form-group textarea:focus {
+  border-color: #635bff;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+}
+
+/* =========================================================
+   MODAL ACTIONS
+========================================================= */
+
+.holiday-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.holiday-cancel-btn,
+.holiday-save-btn {
+  height: 42px;
+  padding: 0 17px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.holiday-cancel-btn {
+  border: 1px solid #dfe2e8;
+  background: #fff;
+  color: #5f6570;
+}
+
+.holiday-cancel-btn:hover {
+  background: #f7f8fa;
+}
+
+.holiday-save-btn {
+  border: 1px solid #635bff;
+  background: #635bff;
+  color: #fff;
+}
+
+.holiday-save-btn:hover {
+  background: #5148e8;
+  border-color: #5148e8;
+}
+
+.holiday-save-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  .holidays-page {
+    padding: 16px;
+  }
+
+  .holidays-header,
+  .holidays-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .add-holiday-btn {
+    width: 100%;
+  }
+
+  .holiday-description {
+    max-width: 250px;
+  }
+
+  .holiday-modal {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .holidays-page {
+    padding: 12px;
+  }
+
+  .holidays-header h2 {
+    font-size: 21px;
+  }
+
+  .holiday-modal-overlay {
+    padding: 12px;
+  }
+
+  .holiday-modal-header,
+  .holiday-form {
+    padding: 17px;
+  }
+
+  .holiday-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .holiday-cancel-btn,
+  .holiday-save-btn {
+    width: 100%;
+  }
+}

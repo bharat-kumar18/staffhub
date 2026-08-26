@@ -290,6 +290,8 @@
 
 .settings-save-btn {
   height: 42px;
+  width: 200px;
+  margin-right: 350px;
   padding: 0 18px;
   border: none;
   border-radius: 8px;
@@ -441,8 +443,8 @@
   padding: 0 14px;
   border: 1px solid #dfe1e6;
   border-radius: 8px;
-  background: #ffffff;
-  color: #4a4d55;
+  background: #5b57e8;
+  color: white;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;

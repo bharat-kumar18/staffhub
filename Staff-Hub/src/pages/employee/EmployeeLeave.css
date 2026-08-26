@@ -11,6 +11,10 @@
 /* Header */
 
 .employee-leave-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 18px;
 }
 
@@ -27,6 +31,33 @@
     color: #6b7280;
 }
 
+/* Toggle Button */
+
+.employee-leave-toggle-btn {
+    flex-shrink: 0;
+    height: 40px;
+    width: 180px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    white-space: nowrap;
+}
+
+.employee-leave-toggle-btn:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+.employee-leave-toggle-btn:active {
+    transform: translateY(1px);
+}
+
 /* Card */
 
 .employee-leave-card {
@@ -37,6 +68,11 @@
     border-radius: 12px;
     box-sizing: border-box;
     box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    margin-bottom: 20px;
+}
+
+.employee-leave-card:last-child {
+    margin-bottom: 0;
 }
 
 /* Card Header */
@@ -134,6 +170,8 @@
 .employee-leave-form-actions {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
     padding-top: 2px;
 }
 
@@ -168,6 +206,157 @@
     box-shadow: none;
 }
 
+.employee-leave-cancel-btn {
+    min-width: 100px;
+    height: 40px;
+    padding: 0 18px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.employee-leave-cancel-btn:hover {
+    background: #f3f4f6;
+}
+
+.employee-leave-cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   LEAVE HISTORY TABLE
+========================================================= */
+
+.employee-leave-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.employee-leave-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+}
+
+.employee-leave-table thead th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6b7280;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.employee-leave-table tbody td {
+    font-size: 13px;
+    color: #1f2937;
+    padding: 12px;
+    border-bottom: 1px solid #f1f2f4;
+    vertical-align: top;
+}
+
+.employee-leave-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.employee-leave-type-cell {
+    text-transform: capitalize;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.employee-leave-reason-cell {
+    max-width: 240px;
+    color: #4b5563;
+}
+
+.employee-leave-table-empty {
+    text-align: center;
+    padding: 28px 12px !important;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* Status Badge */
+
+.employee-leave-status {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.employee-leave-status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.employee-leave-status-approved {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.employee-leave-status-rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Action Buttons */
+
+.employee-leave-actions-cell {
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.employee-leave-action-btn {
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.employee-leave-edit-btn {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #dbeafe;
+}
+
+.employee-leave-edit-btn:hover:not(:disabled) {
+    background: #dbeafe;
+}
+
+.employee-leave-delete-btn {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fee2e2;
+}
+
+.employee-leave-delete-btn:hover:not(:disabled) {
+    background: #fee2e2;
+}
+
+.employee-leave-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Responsive */
 
 @media (max-width: 768px) {
@@ -184,8 +373,17 @@
         gap: 0;
     }
 
+    .employee-leave-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .employee-leave-header h2 {
         font-size: 21px;
+    }
+
+    .employee-leave-toggle-btn {
+        width: 100%;
     }
 }
 
@@ -198,7 +396,7 @@
         justify-content: stretch;
     }
 
-    .employee-leave-submit-btn {
-        width: 100%;
+    .employee-leave-form-actions button {
+        flex: 1;
     }
 }

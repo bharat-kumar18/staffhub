@@ -964,37 +964,6 @@ export default function Attendance() {
 
                     {/* CHECK IN */}
 
-                    <button
-                        className="attendance-create-btn"
-                        onClick={handleCheckIn}
-                        disabled={locationLoading}
-                    >
-
-                        <Icon.Location />
-
-                        {locationLoading
-                            ? "Getting Location..."
-                            : "Check In"}
-
-                    </button>
-
-
-                    {/* CHECK OUT */}
-
-                    <button
-                        className="attendance-outline-btn"
-                        onClick={handleCheckOut}
-                        disabled={locationLoading}
-                    >
-
-                        <Icon.Check />
-
-                        {locationLoading
-                            ? "Please Wait..."
-                            : "Check Out"}
-
-                    </button>
-
 
                 </div>
 
@@ -1012,79 +981,7 @@ export default function Attendance() {
                     TABS
                 ================================================= */}
 
-                <div className="attendance-tabs">
-
-
-                    <button
-                        className={`attendance-tab ${
-                            activeTab === "validate"
-                                ? "active"
-                                : ""
-                        }`}
-                        onClick={() =>
-                            setActiveTab(
-                                "validate"
-                            )
-                        }
-                    >
-
-                        <span className="attendance-count">
-                            1
-                        </span>
-
-                        Attendance To Validate
-
-                        <Icon.More />
-
-                    </button>
-
-
-                    <button
-                        className={`attendance-tab ${
-                            activeTab === "ot"
-                                ? "active"
-                                : ""
-                        }`}
-                        onClick={() =>
-                            setActiveTab("ot")
-                        }
-                    >
-
-                        <span className="attendance-count">
-                            721
-                        </span>
-
-                        OT Attendances
-
-                        <Icon.More />
-
-                    </button>
-
-
-                    <button
-                        className={`attendance-tab ${
-                            activeTab === "validated"
-                                ? "active"
-                                : ""
-                        }`}
-                        onClick={() =>
-                            setActiveTab(
-                                "validated"
-                            )
-                        }
-                    >
-
-                        <span className="attendance-count">
-                            761
-                        </span>
-
-                        Validated Attendances
-
-                    </button>
-
-
-                </div>
-
+               
 
                 {/* =================================================
                     SELECT BUTTON

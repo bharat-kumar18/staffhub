@@ -6,6 +6,7 @@ import ManageEmployees from "../employeeuser/ManageEmployees";
 import Attendance from "../attendance/Attendance";
 import Settings from "../settings/Settings";
 import Leave from "../leave/Leave.jsx";
+import Holidays from "../holiday/Holidays.jsx";
 
 /* ---------------------------------------------------------
    SELF CONTAINED ICONS
@@ -382,6 +383,27 @@ const Icon = {
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   ),
+
+  /* =====================================================
+     MOBILE MENU ICON
+  ===================================================== */
+
+  Menu: (p) => (
+    <svg
+      viewBox="0 0 24 24"
+      width={p.size || 22}
+      height={p.size || 22}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  ),
 };
 
 /* ---------------------------------------------------------
@@ -389,19 +411,76 @@ const Icon = {
 --------------------------------------------------------- */
 
 const NAV_ITEMS = [
-  { key: "dashboard", label: "Dashboard", icon: Icon.Grid },
-  { key: "employee", label: "Employee", icon: Icon.Users },
-  { key: "attendance", label: "Attendance", icon: Icon.Check },
-  { key: "leave", label: "Leave", icon: Icon.X },
-  { key: "payroll", label: "Payroll", icon: Icon.Wallet },
-  { key: "recruitment", label: "Recruitment", icon: Icon.Phone },
-  { key: "onboarding", label: "Onboarding", icon: Icon.Rocket },
-  { key: "offboarding", label: "Offboarding", icon: Icon.LogOut },
-  { key: "performance", label: "Performance", icon: Icon.Trend },
-  { key: "project", label: "Project", icon: Icon.Folder },
-  { key: "assets", label: "Assets", icon: Icon.Box },
-  { key: "helpdesk", label: "Helpdesk", icon: Icon.Headphones },
-  { key: "reports", label: "Reports", icon: Icon.FileText },
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: Icon.Grid,
+  },
+  {
+    key: "employee",
+    label: "Employee",
+    icon: Icon.Users,
+  },
+  {
+    key: "attendance",
+    label: "Attendance",
+    icon: Icon.Check,
+  },
+  {
+    key: "leave",
+    label: "Leave",
+    icon: Icon.X,
+  },
+  {
+    key: "holidays",
+    label: "Holidays",
+    icon: Icon.Calendar,
+  },
+  {
+    key: "payroll",
+    label: "Payroll",
+    icon: Icon.Wallet,
+  },
+  {
+    key: "recruitment",
+    label: "Recruitment",
+    icon: Icon.Phone,
+  },
+  {
+    key: "onboarding",
+    label: "Onboarding",
+    icon: Icon.Rocket,
+  },
+  {
+    key: "offboarding",
+    label: "Offboarding",
+    icon: Icon.LogOut,
+  },
+  {
+    key: "performance",
+    label: "Performance",
+    icon: Icon.Trend,
+  },
+  {
+    key: "project",
+    label: "Project",
+    icon: Icon.Folder,
+  },
+  {
+    key: "assets",
+    label: "Assets",
+    icon: Icon.Box,
+  },
+  {
+    key: "helpdesk",
+    label: "Helpdesk",
+    icon: Icon.Headphones,
+  },
+  {
+    key: "reports",
+    label: "Reports",
+    icon: Icon.FileText,
+  },
 ];
 
 /* ---------------------------------------------------------
@@ -415,7 +494,11 @@ const SETUP_STEPS = [
   { label: "Shift", status: "done" },
   { label: "Shift Schedule", status: "done" },
   { label: "Work Type", status: "done" },
-  { label: "Mail Server", status: "current", number: 7 },
+  {
+    label: "Mail Server",
+    status: "current",
+    number: 7,
+  },
   { label: "First Employee", status: "done" },
 ];
 
@@ -475,7 +558,14 @@ export default function Dashboard() {
     sessionStorage.getItem("activePage") || "dashboard"
   );
 
-  const [showSetupBanner, setShowSetupBanner] = useState(true);
+  /* =====================================================
+     MOBILE SIDEBAR STATE
+  ===================================================== */
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [showSetupBanner, setShowSetupBanner] =
+    useState(true);
 
   const completedSteps = SETUP_STEPS.filter(
     (step) => step.status === "done"
@@ -490,6 +580,9 @@ export default function Dashboard() {
     setActivePage(key);
 
     sessionStorage.setItem("activePage", key);
+
+    /* Mobile navigation ke baad sidebar close */
+    setSidebarOpen(false);
   };
 
   /* -------------------------------------------------------
@@ -500,15 +593,41 @@ export default function Dashboard() {
     setActiveNav("settings");
     setActivePage("settings");
 
-    sessionStorage.setItem("activePage", "settings");
+    sessionStorage.setItem(
+      "activePage",
+      "settings"
+    );
+
+    /* Mobile par settings click ke baad sidebar close */
+    setSidebarOpen(false);
+  };
+
+  /* -------------------------------------------------------
+     MOBILE SIDEBAR TOGGLE
+  ------------------------------------------------------- */
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
   };
 
   return (
     <div className="hr-app">
 
-      {/* ================= SIDEBAR ================= */}
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
 
-      <aside className="hr-sidebar">
+      <aside
+        className={`hr-sidebar ${
+          sidebarOpen ? "sidebar-open" : ""
+        }`}
+      >
+
+        {/* SIDEBAR HEADER */}
 
         <div className="hr-sidebar-header">
 
@@ -537,6 +656,8 @@ export default function Dashboard() {
 
         </div>
 
+        {/* SIDEBAR NAVIGATION */}
+
         <nav className="hr-nav">
 
           {NAV_ITEMS.map(
@@ -546,9 +667,13 @@ export default function Dashboard() {
                 key={key}
                 type="button"
                 className={`hr-nav-item ${
-                  activeNav === key ? "active" : ""
+                  activeNav === key
+                    ? "active"
+                    : ""
                 }`}
-                onClick={() => handleNavigation(key)}
+                onClick={() =>
+                  handleNavigation(key)
+                }
               >
 
                 <IconCmp size={18} />
@@ -566,27 +691,56 @@ export default function Dashboard() {
 
       </aside>
 
-      {/* ================= MAIN ================= */}
+
+      {/* =================================================
+          MOBILE SIDEBAR OVERLAY
+      ================================================= */}
+
+      {sidebarOpen && (
+        <div
+          className="hr-sidebar-overlay"
+          onClick={closeSidebar}
+          aria-hidden="true"
+        />
+      )}
+
+
+      {/* =================================================
+          MAIN
+      ================================================= */}
 
       <div className="hr-main">
 
-        {/* ================= TOPBAR ================= */}
+        {/* =================================================
+            TOPBAR
+        ================================================= */}
 
         <header className="hr-topbar">
 
-          <span className="hr-topbar-title">
-            ADMIN PANNEL
-          </span>
+          {/* MOBILE LEFT */}
 
-          <div className="hr-topbar-actions">
+          <div className="hr-mobile-left">
 
             <button
               type="button"
-              className="hr-checkout-btn"
+              className="hr-menu-btn"
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar"
+              title="Menu"
             >
-              <Icon.LogOut size={15} />
-              Check Out
+              <Icon.Menu size={22} />
             </button>
+
+            <span className="hr-topbar-title">
+              ADMIN PANNEL
+            </span>
+
+          </div>
+
+
+          {/* TOPBAR ACTIONS */}
+
+          <div className="hr-topbar-actions">
 
             <button
               type="button"
@@ -600,7 +754,9 @@ export default function Dashboard() {
             <button
               type="button"
               className={`hr-icon-btn ${
-                activePage === "settings" ? "active" : ""
+                activePage === "settings"
+                  ? "active"
+                  : ""
               }`}
               aria-label="Settings"
               title="Settings"
@@ -645,6 +801,9 @@ export default function Dashboard() {
               <Icon.Building />
             </button>
 
+
+            {/* PROFILE */}
+
             <div className="hr-profile">
 
               <div className="hr-avatar" />
@@ -669,7 +828,10 @@ export default function Dashboard() {
 
         </header>
 
-        {/* ================= PAGE CONTENT ================= */}
+
+        {/* =================================================
+            PAGE CONTENT
+        ================================================= */}
 
         <main className="hr-content">
 
@@ -681,6 +843,7 @@ export default function Dashboard() {
             <ManageEmployees />
           )}
 
+
           {/* =================================================
               ATTENDANCE
           ================================================= */}
@@ -688,6 +851,7 @@ export default function Dashboard() {
           {activePage === "attendance" && (
             <Attendance />
           )}
+
 
           {/* =================================================
               LEAVE
@@ -697,6 +861,16 @@ export default function Dashboard() {
             <Leave />
           )}
 
+
+          {/* =================================================
+              HOLIDAYS
+          ================================================= */}
+
+          {activePage === "holidays" && (
+            <Holidays />
+          )}
+
+
           {/* =================================================
               SETTINGS
           ================================================= */}
@@ -704,6 +878,7 @@ export default function Dashboard() {
           {activePage === "settings" && (
             <Settings />
           )}
+
 
           {/* =================================================
               DASHBOARD
@@ -741,6 +916,7 @@ export default function Dashboard() {
                   </div>
 
                 </div>
+
 
                 <div className="hr-filters">
 
@@ -791,7 +967,10 @@ export default function Dashboard() {
 
               </div>
 
-              {/* STAT CARDS */}
+
+              {/* =================================================
+                  STAT CARDS
+              ================================================= */}
 
               <section className="hr-stats-grid">
 
@@ -808,11 +987,15 @@ export default function Dashboard() {
                       <div
                         className="hr-stat-icon"
                         style={{
-                          background: card.iconBg,
-                          color: card.iconColor,
+                          background:
+                            card.iconBg,
+                          color:
+                            card.iconColor,
                         }}
                       >
+
                         <CardIcon size={20} />
+
                       </div>
 
                       <span className="hr-stat-label">
@@ -825,9 +1008,11 @@ export default function Dashboard() {
 
                       <span
                         className={`hr-stat-footer ${
-                          card.footerType === "pill-green"
+                          card.footerType ===
+                          "pill-green"
                             ? "pill green"
-                            : card.footerType === "pill-amber"
+                            : card.footerType ===
+                              "pill-amber"
                             ? "pill amber"
                             : ""
                         }`}
@@ -842,7 +1027,10 @@ export default function Dashboard() {
 
               </section>
 
-              {/* BOTTOM WIDGETS */}
+
+              {/* =================================================
+                  BOTTOM WIDGETS
+              ================================================= */}
 
               <section className="hr-widgets-grid">
 
@@ -864,6 +1052,7 @@ export default function Dashboard() {
 
                 </div>
 
+
                 <div className="hr-widget">
 
                   <div className="hr-widget-topbar purple" />
@@ -881,6 +1070,7 @@ export default function Dashboard() {
                   </div>
 
                 </div>
+
 
                 <div className="hr-widget">
 
@@ -901,6 +1091,7 @@ export default function Dashboard() {
                       </button>
 
                     </div>
+
 
                     <div className="hr-announcement">
 
@@ -924,17 +1115,19 @@ export default function Dashboard() {
             </>
           )}
 
+
           {/* =================================================
               OTHER MODULES
           ================================================= */}
 
-          {![
+          {[
             "dashboard",
             "employee",
             "attendance",
             "leave",
+            "holidays",
             "settings",
-          ].includes(activePage) && (
+          ].includes(activePage) === false && (
 
             <div
               style={{
@@ -945,7 +1138,8 @@ export default function Dashboard() {
 
               <h2>
                 {NAV_ITEMS.find(
-                  (item) => item.key === activePage
+                  (item) =>
+                    item.key === activePage
                 )?.label || "Module"}
               </h2>
 
